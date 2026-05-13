@@ -1,5 +1,6 @@
 package com.petcarebackend.controller;
 
+import com.petcarebackend.dto.ApiResponse;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,7 +15,8 @@ public class TestController {
     }
 
     @GetMapping("/test/db")
-    public String testDb() {
-        return jdbcTemplate.queryForObject("select current_database()", String.class);
+    public ApiResponse<String> testDb() {
+        String databaseName = jdbcTemplate.queryForObject("select current_database()", String.class);
+        return ApiResponse.success("Database connection is active.", databaseName);
     }
 }
