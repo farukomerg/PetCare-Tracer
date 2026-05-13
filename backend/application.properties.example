@@ -1,0 +1,10 @@
+spring.application.name=petcare-backend
+
+spring.datasource.url=jdbc:postgresql://localhost:5432/petcare_tracker
+spring.datasource.username=postgres
+spring.datasource.password=
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+spring.sql.init.mode=never
+
+server.port=8080
