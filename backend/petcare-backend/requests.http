@@ -1,0 +1,61 @@
+GET http://localhost:8080/test/db
+
+###
+
+GET http://localhost:8080/api/users
+
+###
+
+GET http://localhost:8080/api/pets
+
+###
+
+POST http://localhost:8080/api/health-records
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "recordType": "CHECKUP",
+  "recordDate": "2026-05-14",
+  "description": "Genel kontrol yapildi, durum iyi."
+}
+
+###
+
+GET http://localhost:8080/api/health-records
+
+###
+
+POST http://localhost:8080/api/vaccines
+Content-Type: application/json
+
+{
+  "vaccineName": "Bronchine",
+  "description": "Solunum yolu asisi",
+  "repeatDays": 365
+}
+
+###
+
+GET http://localhost:8080/api/vaccines
+
+###
+
+POST http://localhost:8080/api/vaccine-records
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "vaccineId": 1,
+  "applicationDate": "2026-05-14",
+  "nextDueDate": "2027-05-14",
+  "note": "Sorunsuz uygulandi"
+}
+
+###
+
+GET http://localhost:8080/api/vaccine-records
+
+###
+
+GET http://localhost:8080/api/vaccine-records/pet/1
