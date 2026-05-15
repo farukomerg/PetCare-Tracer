@@ -99,3 +99,26 @@ GET http://localhost:8080/api/medication-schedules
 ###
 
 GET http://localhost:8080/api/medication-schedules/pet/1
+
+###
+
+POST http://localhost:8080/api/feeding-plans
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "foodName": "Tavuklu mama",
+  "amount": 80.00,
+  "amountUnit": "gram",
+  "mealsPerDay": 2,
+  "note": "Sabah ve aksam",
+  "isActive": true
+}
+
+###
+
+GET http://localhost:8080/api/feeding-plans
+
+###
+
+GET http://localhost:8080/api/feeding-plans/pet/1
