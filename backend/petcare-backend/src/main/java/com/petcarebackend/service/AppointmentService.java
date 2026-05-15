@@ -51,6 +51,22 @@ public class AppointmentService {
         return getAppointmentById(newId);
     }
 
+    public AppointmentResponse updateAppointment(Long appointmentId, CreateAppointmentRequest request) {
+        if (appointmentRepository.findById(appointmentId).isEmpty()) {
+            throw new NotFoundException("Appointment not found: " + appointmentId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        appointmentRepository.update(appointmentId, normalizeRequest(request));
+        return getAppointmentById(appointmentId);
+    }
+
+    public void deleteAppointment(Long appointmentId) {
+        if (appointmentRepository.deleteById(appointmentId) == 0) {
+            throw new NotFoundException("Appointment not found: " + appointmentId);
+        }
+    }
+
     private CreateAppointmentRequest normalizeRequest(CreateAppointmentRequest request) {
         String status = request.status() == null || request.status().isBlank()
                 ? "PLANNED"

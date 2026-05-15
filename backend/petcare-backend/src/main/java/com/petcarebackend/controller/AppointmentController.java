@@ -7,9 +7,11 @@ import com.petcarebackend.service.AppointmentService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +46,19 @@ public class AppointmentController {
         AppointmentResponse created = appointmentService.createAppointment(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Appointment created successfully.", created));
+    }
+
+    @PutMapping("/{appointmentId}")
+    public ApiResponse<AppointmentResponse> updateAppointment(
+            @PathVariable Long appointmentId,
+            @RequestBody CreateAppointmentRequest request
+    ) {
+        return ApiResponse.success("Appointment updated successfully.", appointmentService.updateAppointment(appointmentId, request));
+    }
+
+    @DeleteMapping("/{appointmentId}")
+    public ApiResponse<Void> deleteAppointment(@PathVariable Long appointmentId) {
+        appointmentService.deleteAppointment(appointmentId);
+        return ApiResponse.success("Appointment deleted successfully.", null);
     }
 }

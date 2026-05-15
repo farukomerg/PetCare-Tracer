@@ -98,4 +98,26 @@ public class AppointmentRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long appointmentId, CreateAppointmentRequest request) {
+        String sql = """
+                UPDATE appointments
+                SET pet_id = ?, vet_name = ?, clinic_name = ?, appointment_time = ?, status = ?, note = ?
+                WHERE appointment_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.vetName(),
+                request.clinicName(),
+                Timestamp.valueOf(request.appointmentTime()),
+                request.status(),
+                request.note(),
+                appointmentId
+        );
+    }
+
+    public int deleteById(Long appointmentId) {
+        return jdbcTemplate.update("DELETE FROM appointments WHERE appointment_id = ?", appointmentId);
+    }
 }

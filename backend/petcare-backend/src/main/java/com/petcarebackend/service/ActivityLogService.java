@@ -48,16 +48,51 @@ public class ActivityLogService {
         validateRequest(request);
         ensurePetExists(request.petId());
 
+        CreateActivityLogRequest normalized = normalizeRequest(request);
         ActivityLog activityLog = new ActivityLog();
-        activityLog.setPetId(request.petId());
-        activityLog.setActivityType(request.activityType().trim().toUpperCase());
-        activityLog.setDurationMinutes(request.durationMinutes());
-        activityLog.setCaloriesEstimate(request.caloriesEstimate());
-        activityLog.setRecordedAt(request.recordedAt() != null ? request.recordedAt() : LocalDateTime.now());
-        activityLog.setNote(request.note());
+        applyRequest(activityLog, normalized);
 
         ActivityLog saved = activityLogRepository.save(activityLog);
         return toResponse(saved);
+    }
+
+    public ActivityLogResponse updateActivityLog(String id, CreateActivityLogRequest request) {
+        validateRequest(request);
+        ensurePetExists(request.petId());
+
+        ActivityLog existing = activityLogRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Activity log not found: " + id));
+
+        applyRequest(existing, normalizeRequest(request));
+        ActivityLog updated = activityLogRepository.save(existing);
+        return toResponse(updated);
+    }
+
+    public void deleteActivityLog(String id) {
+        if (activityLogRepository.findById(id).isEmpty()) {
+            throw new NotFoundException("Activity log not found: " + id);
+        }
+        activityLogRepository.deleteById(id);
+    }
+
+    private CreateActivityLogRequest normalizeRequest(CreateActivityLogRequest request) {
+        return new CreateActivityLogRequest(
+                request.petId(),
+                request.activityType().trim().toUpperCase(),
+                request.durationMinutes(),
+                request.caloriesEstimate(),
+                request.recordedAt() != null ? request.recordedAt() : LocalDateTime.now(),
+                request.note()
+        );
+    }
+
+    private void applyRequest(ActivityLog activityLog, CreateActivityLogRequest request) {
+        activityLog.setPetId(request.petId());
+        activityLog.setActivityType(request.activityType());
+        activityLog.setDurationMinutes(request.durationMinutes());
+        activityLog.setCaloriesEstimate(request.caloriesEstimate());
+        activityLog.setRecordedAt(request.recordedAt());
+        activityLog.setNote(request.note());
     }
 
     private void ensurePetExists(Long petId) {

@@ -87,4 +87,23 @@ public class MedicationRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long medicationId, CreateMedicationRequest request) {
+        String sql = """
+                UPDATE medications
+                SET medication_name = ?, form = ?, description = ?
+                WHERE medication_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.medicationName(),
+                request.form(),
+                request.description(),
+                medicationId
+        );
+    }
+
+    public int deleteById(Long medicationId) {
+        return jdbcTemplate.update("DELETE FROM medications WHERE medication_id = ?", medicationId);
+    }
 }

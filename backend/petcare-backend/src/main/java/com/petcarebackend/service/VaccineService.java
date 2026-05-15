@@ -38,8 +38,37 @@ public class VaccineService {
                     throw new BadRequestException("Vaccine already exists.");
                 });
 
-        Long newId = vaccineRepository.save(request);
+        Long newId = vaccineRepository.save(normalizeRequest(request));
         return getVaccineById(newId);
+    }
+
+    public VaccineResponse updateVaccine(Long vaccineId, CreateVaccineRequest request) {
+        if (vaccineRepository.findById(vaccineId).isEmpty()) {
+            throw new NotFoundException("Vaccine not found: " + vaccineId);
+        }
+        validateRequest(request);
+        vaccineRepository.findByName(request.vaccineName().trim())
+                .ifPresent(existing -> {
+                    if (!existing.vaccineId().equals(vaccineId)) {
+                        throw new BadRequestException("Vaccine already exists.");
+                    }
+                });
+        vaccineRepository.update(vaccineId, normalizeRequest(request));
+        return getVaccineById(vaccineId);
+    }
+
+    public void deleteVaccine(Long vaccineId) {
+        if (vaccineRepository.deleteById(vaccineId) == 0) {
+            throw new NotFoundException("Vaccine not found: " + vaccineId);
+        }
+    }
+
+    private CreateVaccineRequest normalizeRequest(CreateVaccineRequest request) {
+        return new CreateVaccineRequest(
+                request.vaccineName().trim(),
+                request.description() != null ? request.description().trim() : null,
+                request.repeatDays()
+        );
     }
 
     private void validateRequest(CreateVaccineRequest request) {

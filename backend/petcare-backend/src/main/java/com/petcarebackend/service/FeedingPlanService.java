@@ -48,6 +48,22 @@ public class FeedingPlanService {
         return getFeedingPlanById(newId);
     }
 
+    public FeedingPlanResponse updateFeedingPlan(Long feedingPlanId, CreateFeedingPlanRequest request) {
+        if (feedingPlanRepository.findById(feedingPlanId).isEmpty()) {
+            throw new NotFoundException("Feeding plan not found: " + feedingPlanId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        feedingPlanRepository.update(feedingPlanId, normalizeRequest(request));
+        return getFeedingPlanById(feedingPlanId);
+    }
+
+    public void deleteFeedingPlan(Long feedingPlanId) {
+        if (feedingPlanRepository.deleteById(feedingPlanId) == 0) {
+            throw new NotFoundException("Feeding plan not found: " + feedingPlanId);
+        }
+    }
+
     private CreateFeedingPlanRequest normalizeRequest(CreateFeedingPlanRequest request) {
         return new CreateFeedingPlanRequest(
                 request.petId(),

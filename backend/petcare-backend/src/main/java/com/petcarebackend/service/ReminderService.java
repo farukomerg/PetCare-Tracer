@@ -52,6 +52,22 @@ public class ReminderService {
         return getReminderById(newId);
     }
 
+    public ReminderResponse updateReminder(Long reminderId, CreateReminderRequest request) {
+        if (reminderRepository.findById(reminderId).isEmpty()) {
+            throw new NotFoundException("Reminder not found: " + reminderId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        reminderRepository.update(reminderId, normalizeRequest(request));
+        return getReminderById(reminderId);
+    }
+
+    public void deleteReminder(Long reminderId) {
+        if (reminderRepository.deleteById(reminderId) == 0) {
+            throw new NotFoundException("Reminder not found: " + reminderId);
+        }
+    }
+
     private CreateReminderRequest normalizeRequest(CreateReminderRequest request) {
         String type = request.reminderType().trim().toUpperCase();
         String status = request.status() == null || request.status().isBlank()

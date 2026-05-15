@@ -48,8 +48,33 @@ public class HealthRecordService {
     public HealthRecordResponse createHealthRecord(CreateHealthRecordRequest request) {
         validateRequest(request);
         ensurePetExists(request.petId());
-        Long newId = healthRecordRepository.save(request);
+        Long newId = healthRecordRepository.save(normalizeRequest(request));
         return getHealthRecordById(newId);
+    }
+
+    public HealthRecordResponse updateHealthRecord(Long healthRecordId, CreateHealthRecordRequest request) {
+        if (healthRecordRepository.findById(healthRecordId).isEmpty()) {
+            throw new NotFoundException("Health record not found: " + healthRecordId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        healthRecordRepository.update(healthRecordId, normalizeRequest(request));
+        return getHealthRecordById(healthRecordId);
+    }
+
+    public void deleteHealthRecord(Long healthRecordId) {
+        if (healthRecordRepository.deleteById(healthRecordId) == 0) {
+            throw new NotFoundException("Health record not found: " + healthRecordId);
+        }
+    }
+
+    private CreateHealthRecordRequest normalizeRequest(CreateHealthRecordRequest request) {
+        return new CreateHealthRecordRequest(
+                request.petId(),
+                request.recordType().trim().toUpperCase(),
+                request.recordDate(),
+                request.description().trim()
+        );
     }
 
     private void ensurePetExists(Long petId) {

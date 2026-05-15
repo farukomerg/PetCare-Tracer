@@ -94,4 +94,24 @@ public class HealthRecordRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long healthRecordId, CreateHealthRecordRequest request) {
+        String sql = """
+                UPDATE health_records
+                SET pet_id = ?, record_type = ?, record_date = ?, description = ?
+                WHERE health_record_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.recordType(),
+                Date.valueOf(request.recordDate()),
+                request.description(),
+                healthRecordId
+        );
+    }
+
+    public int deleteById(Long healthRecordId) {
+        return jdbcTemplate.update("DELETE FROM health_records WHERE health_record_id = ?", healthRecordId);
+    }
 }

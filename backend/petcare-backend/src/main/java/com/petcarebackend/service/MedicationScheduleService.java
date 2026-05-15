@@ -59,6 +59,23 @@ public class MedicationScheduleService {
         return getMedicationScheduleById(newId);
     }
 
+    public MedicationScheduleResponse updateMedicationSchedule(Long medicationScheduleId, CreateMedicationScheduleRequest request) {
+        if (medicationScheduleRepository.findById(medicationScheduleId).isEmpty()) {
+            throw new NotFoundException("Medication schedule not found: " + medicationScheduleId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        ensureMedicationExists(request.medicationId());
+        medicationScheduleRepository.update(medicationScheduleId, normalizeRequest(request));
+        return getMedicationScheduleById(medicationScheduleId);
+    }
+
+    public void deleteMedicationSchedule(Long medicationScheduleId) {
+        if (medicationScheduleRepository.deleteById(medicationScheduleId) == 0) {
+            throw new NotFoundException("Medication schedule not found: " + medicationScheduleId);
+        }
+    }
+
     private CreateMedicationScheduleRequest normalizeRequest(CreateMedicationScheduleRequest request) {
         String normalizedStatus = request.status() == null || request.status().isBlank()
                 ? "ACTIVE"

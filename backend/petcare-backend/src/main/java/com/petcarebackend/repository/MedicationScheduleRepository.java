@@ -121,4 +121,30 @@ public class MedicationScheduleRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long medicationScheduleId, CreateMedicationScheduleRequest request) {
+        String sql = """
+                UPDATE medication_schedules
+                SET pet_id = ?, medication_id = ?, dosage_amount = ?, dosage_unit = ?, frequency_per_day = ?,
+                    start_date = ?, end_date = ?, status = ?, note = ?
+                WHERE medication_schedule_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.medicationId(),
+                request.dosageAmount(),
+                request.dosageUnit(),
+                request.frequencyPerDay(),
+                Date.valueOf(request.startDate()),
+                request.endDate() != null ? Date.valueOf(request.endDate()) : null,
+                request.status(),
+                request.note(),
+                medicationScheduleId
+        );
+    }
+
+    public int deleteById(Long medicationScheduleId) {
+        return jdbcTemplate.update("DELETE FROM medication_schedules WHERE medication_schedule_id = ?", medicationScheduleId);
+    }
 }

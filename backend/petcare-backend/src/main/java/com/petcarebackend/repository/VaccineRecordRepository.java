@@ -99,4 +99,25 @@ public class VaccineRecordRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long vaccineRecordId, CreateVaccineRecordRequest request) {
+        String sql = """
+                UPDATE vaccine_records
+                SET pet_id = ?, vaccine_id = ?, application_date = ?, next_due_date = ?, note = ?
+                WHERE vaccine_record_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.vaccineId(),
+                Date.valueOf(request.applicationDate()),
+                request.nextDueDate() != null ? Date.valueOf(request.nextDueDate()) : null,
+                request.note(),
+                vaccineRecordId
+        );
+    }
+
+    public int deleteById(Long vaccineRecordId) {
+        return jdbcTemplate.update("DELETE FROM vaccine_records WHERE vaccine_record_id = ?", vaccineRecordId);
+    }
 }

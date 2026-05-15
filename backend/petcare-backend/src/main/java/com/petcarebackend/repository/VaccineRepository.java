@@ -91,4 +91,23 @@ public class VaccineRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long vaccineId, CreateVaccineRequest request) {
+        String sql = """
+                UPDATE vaccines
+                SET vaccine_name = ?, description = ?, repeat_days = ?
+                WHERE vaccine_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.vaccineName(),
+                request.description(),
+                request.repeatDays(),
+                vaccineId
+        );
+    }
+
+    public int deleteById(Long vaccineId) {
+        return jdbcTemplate.update("DELETE FROM vaccines WHERE vaccine_id = ?", vaccineId);
+    }
 }

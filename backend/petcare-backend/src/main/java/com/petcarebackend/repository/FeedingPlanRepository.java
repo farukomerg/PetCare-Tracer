@@ -100,4 +100,27 @@ public class FeedingPlanRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long feedingPlanId, CreateFeedingPlanRequest request) {
+        String sql = """
+                UPDATE feeding_plans
+                SET pet_id = ?, food_name = ?, amount = ?, amount_unit = ?, meals_per_day = ?, note = ?, is_active = ?
+                WHERE feeding_plan_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.foodName(),
+                request.amount(),
+                request.amountUnit(),
+                request.mealsPerDay(),
+                request.note(),
+                request.isActive(),
+                feedingPlanId
+        );
+    }
+
+    public int deleteById(Long feedingPlanId) {
+        return jdbcTemplate.update("DELETE FROM feeding_plans WHERE feeding_plan_id = ?", feedingPlanId);
+    }
 }

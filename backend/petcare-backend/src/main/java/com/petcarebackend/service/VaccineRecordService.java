@@ -56,6 +56,23 @@ public class VaccineRecordService {
         return getVaccineRecordById(newId);
     }
 
+    public VaccineRecordResponse updateVaccineRecord(Long vaccineRecordId, CreateVaccineRecordRequest request) {
+        if (vaccineRecordRepository.findById(vaccineRecordId).isEmpty()) {
+            throw new NotFoundException("Vaccine record not found: " + vaccineRecordId);
+        }
+        validateRequest(request);
+        ensurePetExists(request.petId());
+        ensureVaccineExists(request.vaccineId());
+        vaccineRecordRepository.update(vaccineRecordId, request);
+        return getVaccineRecordById(vaccineRecordId);
+    }
+
+    public void deleteVaccineRecord(Long vaccineRecordId) {
+        if (vaccineRecordRepository.deleteById(vaccineRecordId) == 0) {
+            throw new NotFoundException("Vaccine record not found: " + vaccineRecordId);
+        }
+    }
+
     private void ensurePetExists(Long petId) {
         if (petId == null || petRepository.findById(petId).isEmpty()) {
             throw new NotFoundException("Pet not found: " + petId);

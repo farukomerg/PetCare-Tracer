@@ -97,4 +97,25 @@ public class ReminderRepository {
 
         return keyHolder.getKey().longValue();
     }
+
+    public int update(Long reminderId, CreateReminderRequest request) {
+        String sql = """
+                UPDATE reminders
+                SET pet_id = ?, reminder_type = ?, title = ?, remind_at = ?, status = ?
+                WHERE reminder_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.petId(),
+                request.reminderType(),
+                request.title(),
+                Timestamp.valueOf(request.remindAt()),
+                request.status(),
+                reminderId
+        );
+    }
+
+    public int deleteById(Long reminderId) {
+        return jdbcTemplate.update("DELETE FROM reminders WHERE reminder_id = ?", reminderId);
+    }
 }

@@ -38,8 +38,37 @@ public class MedicationService {
                     throw new BadRequestException("Medication already exists.");
                 });
 
-        Long newId = medicationRepository.save(request);
+        Long newId = medicationRepository.save(normalizeRequest(request));
         return getMedicationById(newId);
+    }
+
+    public MedicationResponse updateMedication(Long medicationId, CreateMedicationRequest request) {
+        if (medicationRepository.findById(medicationId).isEmpty()) {
+            throw new NotFoundException("Medication not found: " + medicationId);
+        }
+        validateRequest(request);
+        medicationRepository.findByName(request.medicationName().trim())
+                .ifPresent(existing -> {
+                    if (!existing.medicationId().equals(medicationId)) {
+                        throw new BadRequestException("Medication already exists.");
+                    }
+                });
+        medicationRepository.update(medicationId, normalizeRequest(request));
+        return getMedicationById(medicationId);
+    }
+
+    public void deleteMedication(Long medicationId) {
+        if (medicationRepository.deleteById(medicationId) == 0) {
+            throw new NotFoundException("Medication not found: " + medicationId);
+        }
+    }
+
+    private CreateMedicationRequest normalizeRequest(CreateMedicationRequest request) {
+        return new CreateMedicationRequest(
+                request.medicationName().trim(),
+                request.form() != null ? request.form().trim() : null,
+                request.description() != null ? request.description().trim() : null
+        );
     }
 
     private void validateRequest(CreateMedicationRequest request) {
