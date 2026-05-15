@@ -102,23 +102,43 @@ GET http://localhost:8080/api/medication-schedules/pet/1
 
 ###
 
-POST http://localhost:8080/api/feeding-plans
+POST http://localhost:8080/api/appointments
 Content-Type: application/json
 
 {
   "petId": 1,
-  "foodName": "Tavuklu mama",
-  "amount": 80.00,
-  "amountUnit": "gram",
-  "mealsPerDay": 2,
-  "note": "Sabah ve aksam",
-  "isActive": true
+  "vetName": "Dr. Ayse Kaya",
+  "clinicName": "Patiler Klinigi",
+  "appointmentTime": "2026-05-20T14:00:00",
+  "status": "PLANNED",
+  "note": "Genel kontrol"
 }
 
 ###
 
-GET http://localhost:8080/api/feeding-plans
+GET http://localhost:8080/api/appointments
 
 ###
 
-GET http://localhost:8080/api/feeding-plans/pet/1
+GET http://localhost:8080/api/appointments/pet/1
+
+###
+
+POST http://localhost:8080/api/reminders
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "reminderType": "APPOINTMENT",
+  "title": "Veteriner randevusu",
+  "remindAt": "2026-05-20T10:00:00",
+  "status": "PENDING"
+}
+
+###
+
+GET http://localhost:8080/api/reminders
+
+###
+
+GET http://localhost:8080/api/reminders/pet/1
