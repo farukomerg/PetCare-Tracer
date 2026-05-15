@@ -59,3 +59,43 @@ GET http://localhost:8080/api/vaccine-records
 ###
 
 GET http://localhost:8080/api/vaccine-records/pet/1
+
+###
+
+POST http://localhost:8080/api/medications
+Content-Type: application/json
+
+{
+  "medicationName": "Antibiyotik A",
+  "form": "Tablet",
+  "description": "Genel kullanim icin antibiyotik"
+}
+
+###
+
+GET http://localhost:8080/api/medications
+
+###
+
+POST http://localhost:8080/api/medication-schedules
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "medicationId": 1,
+  "dosageAmount": 1.00,
+  "dosageUnit": "tablet",
+  "frequencyPerDay": 2,
+  "startDate": "2026-05-15",
+  "endDate": "2026-05-20",
+  "status": "ACTIVE",
+  "note": "Sabah ve aksam yemek sonrasi"
+}
+
+###
+
+GET http://localhost:8080/api/medication-schedules
+
+###
+
+GET http://localhost:8080/api/medication-schedules/pet/1
