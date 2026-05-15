@@ -130,6 +130,29 @@ GET http://localhost:8080/api/medication-schedules/pet/1
 
 ###
 
+POST http://localhost:8080/api/feeding-plans
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "foodName": "Tavuklu Premium Mama",
+  "amount": 80.00,
+  "amountUnit": "gram",
+  "mealsPerDay": 2,
+  "note": "Sabah ve aksam verilecek",
+  "isActive": true
+}
+
+###
+
+GET http://localhost:8080/api/feeding-plans
+
+###
+
+GET http://localhost:8080/api/feeding-plans/pet/1
+
+###
+
 POST http://localhost:8080/api/appointments
 Content-Type: application/json
 
@@ -170,3 +193,25 @@ GET http://localhost:8080/api/reminders
 ###
 
 GET http://localhost:8080/api/reminders/pet/1
+
+###
+
+POST http://localhost:8080/api/activity-logs
+Content-Type: application/json
+
+{
+  "petId": 1,
+  "activityType": "WALK",
+  "durationMinutes": 35,
+  "caloriesEstimate": 120,
+  "recordedAt": "2026-05-15T11:30:00",
+  "note": "Aksam yuruyusu"
+}
+
+###
+
+GET http://localhost:8080/api/activity-logs
+
+###
+
+GET http://localhost:8080/api/activity-logs/pet/1
