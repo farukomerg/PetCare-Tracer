@@ -1,22 +1,19 @@
 # PetCare-Tracer
 
-Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek merkezden yonetebildigi ileri Java dersi projesi.
+PetCare-Tracer, evcil hayvan sahiplerinin saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek bir merkezden yonetebilmesi icin gelistirilmis cok katmanli bir takip platformudur. Proje, Ileri Java dersi kapsaminda Java tabanli backend, JavaFX admin paneli, Android istemci ve izleme/test altyapisi ile tasarlanmistir.
 
-## Proje Yapisi
+## Proje Amaci
 
-- `backend/petcare-backend`
-  Spring Boot + JDBC + MongoDB backend
-- `admin-panel/petcare-admin`
-  JavaFX admin panel
-- `db`
-  PostgreSQL schema ve seed scriptleri
-- `docs`
-  kurulum ve performans test dokumani
-- `tests/k6`
-  performans testi scriptleri
-- `mobil-app`
-  Android istemci icin ayrilan alan
-  Login, register, dashboard ve pet listeleme iskeleti hazir
+Bu projenin amaci, evcil hayvan sahiplerinin daginik halde tuttugu bilgileri tek bir dijital platformda toplamak ve asagidaki ihtiyaclari karsilamaktir:
+
+- evcil hayvan profili olusturma
+- saglik gecmisi tutma
+- asi kayitlarini takip etme
+- ilac ve doz planlarini yonetme
+- beslenme planlarini kaydetme
+- veteriner randevularini saklama
+- hatirlatma olusturma
+- gunluk aktivite kayitlarini izleme
 
 ## Kullanilan Teknolojiler
 
@@ -26,52 +23,98 @@ Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve a
 - PostgreSQL
 - MongoDB
 - BCrypt
-- Docker Compose
-- k6
 - JavaFX
+- Android Studio (Java)
+- Docker Compose
 - Prometheus
 - Grafana
+- k6
+- JUnit + Mockito
 
-## Tamamlanan Backend Modulleri
+## Sistem Mimarisi
 
-- auth
-- users
-- pets
-- health records
-- vaccines
-- vaccine records
-- medications
-- medication schedules
-- feeding plans
-- appointments
-- reminders
-- activity logs
+```mermaid
+flowchart LR
+    A["Android Uygulamasi"] --> B["Spring Boot API"]
+    C["JavaFX Admin Panel"] --> B
+    B --> D["PostgreSQL"]
+    B --> E["MongoDB"]
+    F["k6"] --> B
+    G["Prometheus"] --> B
+    H["Grafana"] --> G
+```
+
+## Tamamlanan Moduller
+
+### Backend
+
+- Auth
+- Users
+- Pets
+- Health Records
+- Vaccines
+- Vaccine Records
+- Medications
+- Medication Schedules
+- Feeding Plans
+- Appointments
+- Reminders
+- Activity Logs
+
+### Istemci Tarafi
+
+- JavaFX admin panel iskeleti
+- Android login ekrani
+- Android register ekrani
+- Android dashboard ekrani
+- Android pet listesi ekrani
+
+### DevOps / Test
+
+- Docker Compose kurulumu
+- Prometheus metrics toplama
+- Grafana dashboard
+- k6 smoke test
+- k6 hafif yuk testi
+- temel TDD tabanli service testleri
+
+## Proje Klasor Yapisi
+
+- `backend/petcare-backend`
+  Spring Boot backend kodlari
+- `admin-panel/petcare-admin`
+  JavaFX admin panel projesi
+- `mobil-app/PetCareMobile`
+  Android Studio mobil istemci projesi
+- `db`
+  PostgreSQL schema ve seed scriptleri
+- `monitoring`
+  Prometheus ve Grafana konfigrasyonlari
+- `tests/k6`
+  performans test scriptleri
+- `docs`
+  kurulum ve kullanim dokumanlari
 
 ## Yerel Calistirma
 
-1. PostgreSQL ve MongoDB servislerini ac.
-2. `petcare_tracker` veritabanini `db/01_schema.sql` ve `db/02_seed.sql` ile hazirla.
-3. Backend klasorune gir:
+### Backend
 
 ```bash
 cd backend/petcare-backend
-```
-
-4. Uygulamayi baslat:
-
-```bash
 mvnw.cmd spring-boot:run
 ```
 
-## Docker Ile Calistirma
+Varsayilan backend adresi:
 
-Kok klasorde:
+- `http://localhost:8080`
+
+### Docker ile Tum Sistemi Calistirma
 
 ```bash
 docker compose up --build
 ```
 
-Bu kurulum su servisleri ayaga kaldirir:
+Bu komut asagidaki servisleri ayaga kaldirir:
 
 - PostgreSQL: `localhost:5433`
 - MongoDB: `localhost:27018`
@@ -79,64 +122,103 @@ Bu kurulum su servisleri ayaga kaldirir:
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3000`
 
-## Temel Testler
+Grafana giris bilgileri:
 
-Hazir HTTP istekleri:
+- kullanici: `admin`
+- sifre: `admin123`
+
+## Test ve Izleme
+
+### HTTP Istekleri
 
 - [requests.http](/C:/Users/MSI/Desktop/PetCare-Tracer/backend/petcare-backend/requests.http)
 
-Performans testleri:
+### k6 Testleri
 
 ```bash
 k6 run tests/k6/smoke-test.js
 k6 run tests/k6/core-load.js
 ```
 
-Monitoring notlari:
+Docker profili ile:
 
-- [observability.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/observability.md)
+```bash
+docker compose --profile loadtest run --rm k6 run /scripts/smoke-test.js
+```
+
+### TDD / Unit Test
+
+Backend testleri:
+
+```bash
+cd backend/petcare-backend
+mvnw.cmd test
+```
+
+Eklenen ornek test siniflari:
+
+- `AuthServiceTest`
+- `ActivityLogServiceTest`
+- `FeedingPlanServiceTest`
+
+## Android Notlari
+
+Android Studio'da acilacak proje:
+
+- `mobil-app/PetCareMobile`
+
+Android emulator icin backend adresi:
+
+- `http://10.0.2.2:8080/`
+
+Onemli not:
+
+- `No target device found` hatasi koddan degil, emulator veya fiziksel cihaz tanimli olmamasindan kaynaklanir.
+- Bu durumda Android Studio icinde `Tools > Device Manager > Create Device` adimlariyla bir emulator olusturulmalidir.
+
+Detayli rehber:
+
+- [android-mobile.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/android-mobile.md)
 
 ## JavaFX Admin Panel
+
+Calistirma:
 
 ```bash
 backend/petcare-backend/mvnw.cmd -f admin-panel/petcare-admin/pom.xml javafx:run
 ```
 
-Detayli notlar:
+Detayli not:
 
 - [javafx-admin-panel.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/javafx-admin-panel.md)
 
-## Android Mobile
+## Dokumantasyon
 
-Android Studio ile acilacak proje:
-
-- `mobil-app/PetCareMobile`
-
-Detayli notlar:
-
-- [android-mobile.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/android-mobile.md)
+- [database-setup.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/database-setup.md)
+- [performance-testing.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/performance-testing.md)
+- [observability.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/observability.md)
 - [screenshots-guide.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/screenshots-guide.md)
-
-## Mimari Ozeti
-
-```mermaid
-flowchart LR
-    A["Android / JavaFX Client"] --> B["Spring Boot API"]
-    B --> C["PostgreSQL"]
-    B --> D["MongoDB"]
-```
 
 ## Ekran Goruntuleri
 
-- Giris ekrani: ekran goruntusu
-- Kayit ekrani: ekran goruntusu
-- Dashboard: ekran goruntusu
-- Pet listesi: ekran goruntusu
-- JavaFX admin panel: ekran goruntusu
-- Prometheus target ekrani: ekran goruntusu
-- Grafana dashboard: ekran goruntusu
+Asagidaki ekran goruntulerinin README veya rapora eklenmesi onerilir:
 
-## Sonraki Asama
+- Giris ekrani
+- Kayit ekrani
+- Dashboard
+- Pet listesi
+- JavaFX admin panel
+- Prometheus targets
+- Grafana dashboard
 
-- Android pet detay, saglik ve hatirlatma ekranlari
-- ekran goruntuleri ve sunum raporu
+Ekran goruntulerini su klasorde toplayabilirsin:
+
+- `docs/screenshots`
+
+## Mevcut Durum
+
+Proje genel olarak teslime yakin bir seviyededir. Backend tarafi buyuk oranda tamamlanmistir. Kalan ana gelistirmeler mobil tarafta pet detay, saglik kayitlari ve hatirlatma ekranlarinin zenginlestirilmesi ile sunum/rapor son duzenlemeleridir.
+
+## Not
+
+Bu README proje teslimi icin hazirlandi. Grup bilgileri ve ekran goruntuleri eklendikten sonra dogrudan rapor veya zip iceriginde kullanilabilir.
