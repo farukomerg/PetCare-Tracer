@@ -6,6 +6,8 @@ Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve a
 
 - `backend/petcare-backend`
   Spring Boot + JDBC + MongoDB backend
+- `admin-panel/petcare-admin`
+  JavaFX admin panel
 - `db`
   PostgreSQL schema ve seed scriptleri
 - `docs`
@@ -14,6 +16,7 @@ Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve a
   performans testi scriptleri
 - `mobil-app`
   Android istemci icin ayrilan alan
+  Login, register, dashboard ve pet listeleme iskeleti hazir
 
 ## Kullanilan Teknolojiler
 
@@ -25,6 +28,9 @@ Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve a
 - BCrypt
 - Docker Compose
 - k6
+- JavaFX
+- Prometheus
+- Grafana
 
 ## Tamamlanan Backend Modulleri
 
@@ -70,6 +76,8 @@ Bu kurulum su servisleri ayaga kaldirir:
 - PostgreSQL: `localhost:5433`
 - MongoDB: `localhost:27018`
 - Backend API: `http://localhost:8080`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000`
 
 ## Temel Testler
 
@@ -84,6 +92,31 @@ k6 run tests/k6/smoke-test.js
 k6 run tests/k6/core-load.js
 ```
 
+Monitoring notlari:
+
+- [observability.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/observability.md)
+
+## JavaFX Admin Panel
+
+```bash
+backend/petcare-backend/mvnw.cmd -f admin-panel/petcare-admin/pom.xml javafx:run
+```
+
+Detayli notlar:
+
+- [javafx-admin-panel.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/javafx-admin-panel.md)
+
+## Android Mobile
+
+Android Studio ile acilacak proje:
+
+- `mobil-app/PetCareMobile`
+
+Detayli notlar:
+
+- [android-mobile.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/android-mobile.md)
+- [screenshots-guide.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/screenshots-guide.md)
+
 ## Mimari Ozeti
 
 ```mermaid
@@ -93,8 +126,17 @@ flowchart LR
     B --> D["MongoDB"]
 ```
 
+## Ekran Goruntuleri
+
+- Giris ekrani: ekran goruntusu
+- Kayit ekrani: ekran goruntusu
+- Dashboard: ekran goruntusu
+- Pet listesi: ekran goruntusu
+- JavaFX admin panel: ekran goruntusu
+- Prometheus target ekrani: ekran goruntusu
+- Grafana dashboard: ekran goruntusu
+
 ## Sonraki Asama
 
-- JavaFX admin panel
-- Android login ve dashboard entegrasyonu
+- Android pet detay, saglik ve hatirlatma ekranlari
 - ekran goruntuleri ve sunum raporu

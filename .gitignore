@@ -9,3 +9,8 @@ backend-run.log
 backend/petcare-backend/target/
 backend/petcare-backend/.idea/
 .env
+mobil-app/PetCareMobile/local.properties
+mobil-app/PetCareMobile/.idea/
+mobil-app/PetCareMobile/build/
+mobil-app/PetCareMobile/app/build/
+admin-panel/petcare-admin/target/

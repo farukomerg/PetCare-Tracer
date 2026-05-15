@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PetCare Mobile</string>
+    <string name="login_subtitle">Evcil hayvanlarin tum kayitlarini tek merkezden yonet.</string>
+    <string name="email_hint">E-posta</string>
+    <string name="password_hint">Sifre</string>
+    <string name="login_button">Giris Yap</string>
+    <string name="register_link">Hesabin yok mu? Kayit ol</string>
+    <string name="register_title">Yeni hesap olustur</string>
+    <string name="full_name_hint">Ad Soyad</string>
+    <string name="phone_hint">Telefon</string>
+    <string name="register_button">Kaydi Tamamla</string>
+    <string name="welcome_user">Hos geldin, %1$s</string>
+    <string name="dashboard_title">Bugunku Kontrol Merkezi</string>
+    <string name="dashboard_subtitle">Pet listene, saglik verilerine ve takiplere buradan ulasabilirsin.</string>
+    <string name="view_pets_button">Evcil Hayvanlarimi Gor</string>
+    <string name="logout_button">Cikis Yap</string>
+    <string name="pet_list_title">Evcil Hayvanlarim</string>
+    <string name="pet_list_subtitle">Listeyi yenilemek icin asagi cek.</string>
+    <string name="no_pets_text">Bu kullaniciya ait pet kaydi bulunamadi.</string>
+</resources>

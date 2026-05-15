@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="forestDeep">#17352F</color>
+    <color name="forestSoft">#2F6B59</color>
+    <color name="terracotta">#D46B2C</color>
+    <color name="surfaceWarm">#F6F0E8</color>
+    <color name="surfaceMint">#E7F1EC</color>
+    <color name="cardIvory">#FFFDFC</color>
+    <color name="textPrimary">#23302D</color>
+    <color name="textMuted">#6B7C76</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>

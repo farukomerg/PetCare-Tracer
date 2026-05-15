@@ -6,6 +6,7 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
+RUN sed -i 's/\r$//' mvnw
 RUN chmod +x mvnw
 RUN ./mvnw -q -DskipTests dependency:go-offline
 

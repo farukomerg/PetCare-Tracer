@@ -9,6 +9,10 @@ Bu klasordeki `k6` scriptleri backend API'sinin temel performansini olcmek icin 
 - `tests/k6/core-load.js`
   Amaci ana listeleme endpointlerinde hafif yuk testi yapmaktir.
 
+Grafana ile birlikte izleme icin:
+
+- [observability.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/observability.md)
+
 ## Calistirma
 
 Backend calisir durumdayken:
@@ -16,6 +20,12 @@ Backend calisir durumdayken:
 ```bash
 k6 run tests/k6/smoke-test.js
 k6 run tests/k6/core-load.js
+```
+
+Docker stack uzerinden:
+
+```bash
+docker compose run --rm --profile loadtest k6 run /scripts/core-load.js
 ```
 
 Farkli bir URL kullanmak icin:

@@ -1,5 +1,5 @@
 INSERT INTO users (full_name, email, password_hash, phone)
-VALUES ('Ali Yilmaz', 'ali@example.com', 'hash123', '05550000000');
+VALUES ('Ali Yilmaz', 'ali@example.com', '$2a$10$VxjVj/DP2CPggQwOQKcR7.ORZospBtDWvXbmpRsaRwm4EmnA59OdC', '05550000000');
 
 INSERT INTO pets (user_id, pet_name, species, breed, gender, birth_date, current_weight, notes)
 VALUES (1, 'Boncuk', 'Kedi', 'British Shorthair', 'FEMALE', '2022-03-10', 4.20, 'Sakin yapili');
