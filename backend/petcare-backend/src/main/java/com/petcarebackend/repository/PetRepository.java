@@ -1,6 +1,7 @@
 package com.petcarebackend.repository;
 
 import com.petcarebackend.dto.pet.CreatePetRequest;
+import com.petcarebackend.dto.pet.UpdatePetRequest;
 import com.petcarebackend.model.Pet;
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -104,5 +105,31 @@ public class PetRepository {
         }, keyHolder);
 
         return keyHolder.getKey().longValue();
+    }
+
+    public int update(Long petId, UpdatePetRequest request) {
+        String sql = """
+                UPDATE pets
+                SET user_id = ?, pet_name = ?, species = ?, breed = ?, gender = ?,
+                    birth_date = ?, current_weight = ?, notes = ?
+                WHERE pet_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.userId(),
+                request.petName(),
+                request.species(),
+                request.breed(),
+                request.gender(),
+                request.birthDate() != null ? Date.valueOf(request.birthDate()) : null,
+                request.currentWeight(),
+                request.notes(),
+                petId
+        );
+    }
+
+    public int deleteById(Long petId) {
+        String sql = "DELETE FROM pets WHERE pet_id = ?";
+        return jdbcTemplate.update(sql, petId);
     }
 }

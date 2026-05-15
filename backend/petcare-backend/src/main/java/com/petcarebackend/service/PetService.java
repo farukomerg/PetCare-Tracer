@@ -2,6 +2,7 @@ package com.petcarebackend.service;
 
 import com.petcarebackend.dto.pet.CreatePetRequest;
 import com.petcarebackend.dto.pet.PetResponse;
+import com.petcarebackend.dto.pet.UpdatePetRequest;
 import com.petcarebackend.exception.BadRequestException;
 import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.Pet;
@@ -47,6 +48,23 @@ public class PetService {
         return getPetById(petId);
     }
 
+    public PetResponse updatePet(Long petId, UpdatePetRequest request) {
+        if (petRepository.findById(petId).isEmpty()) {
+            throw new NotFoundException("Pet not found: " + petId);
+        }
+
+        validateUpdatePetRequest(request);
+        ensureUserExists(request.userId());
+        petRepository.update(petId, request);
+        return getPetById(petId);
+    }
+
+    public void deletePet(Long petId) {
+        if (petRepository.deleteById(petId) == 0) {
+            throw new NotFoundException("Pet not found: " + petId);
+        }
+    }
+
     private void ensureUserExists(Long userId) {
         if (userId == null || userRepository.findById(userId).isEmpty()) {
             throw new NotFoundException("User not found: " + userId);
@@ -54,6 +72,21 @@ public class PetService {
     }
 
     private void validateCreatePetRequest(CreatePetRequest request) {
+        if (request == null) {
+            throw new BadRequestException("Request body is required.");
+        }
+        if (request.userId() == null) {
+            throw new BadRequestException("userId is required.");
+        }
+        if (isBlank(request.petName())) {
+            throw new BadRequestException("petName is required.");
+        }
+        if (isBlank(request.species())) {
+            throw new BadRequestException("species is required.");
+        }
+    }
+
+    private void validateUpdatePetRequest(UpdatePetRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required.");
         }

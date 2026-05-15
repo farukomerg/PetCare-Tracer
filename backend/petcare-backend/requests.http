@@ -6,7 +6,35 @@ GET http://localhost:8080/api/users
 
 ###
 
+PUT http://localhost:8080/api/users/1
+Content-Type: application/json
+
+{
+  "fullName": "Ali Yilmaz Guncel",
+  "email": "ali@example.com",
+  "phone": "05551112233",
+  "isActive": true
+}
+
+###
+
 GET http://localhost:8080/api/pets
+
+###
+
+PUT http://localhost:8080/api/pets/1
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "petName": "Boncuk",
+  "species": "Kedi",
+  "breed": "British Shorthair",
+  "gender": "FEMALE",
+  "birthDate": "2022-03-10",
+  "currentWeight": 4.50,
+  "notes": "Guncellenmis not"
+}
 
 ###
 

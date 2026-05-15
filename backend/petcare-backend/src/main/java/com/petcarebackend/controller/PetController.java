@@ -3,13 +3,16 @@ package com.petcarebackend.controller;
 import com.petcarebackend.dto.ApiResponse;
 import com.petcarebackend.dto.pet.CreatePetRequest;
 import com.petcarebackend.dto.pet.PetResponse;
+import com.petcarebackend.dto.pet.UpdatePetRequest;
 import com.petcarebackend.service.PetService;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -44,5 +47,16 @@ public class PetController {
         PetResponse createdPet = petService.createPet(request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Pet created successfully.", createdPet));
+    }
+
+    @PutMapping("/{petId}")
+    public ApiResponse<PetResponse> updatePet(@PathVariable Long petId, @RequestBody UpdatePetRequest request) {
+        return ApiResponse.success("Pet updated successfully.", petService.updatePet(petId, request));
+    }
+
+    @DeleteMapping("/{petId}")
+    public ApiResponse<Void> deletePet(@PathVariable Long petId) {
+        petService.deletePet(petId);
+        return ApiResponse.success("Pet deleted successfully.", null);
     }
 }

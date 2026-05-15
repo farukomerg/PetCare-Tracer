@@ -1,6 +1,7 @@
 package com.petcarebackend.repository;
 
 import com.petcarebackend.dto.user.CreateUserRequest;
+import com.petcarebackend.dto.user.UpdateUserRequest;
 import com.petcarebackend.model.User;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
@@ -90,5 +91,26 @@ public class UserRepository {
         }, keyHolder);
 
         return keyHolder.getKey().longValue();
+    }
+
+    public int update(Long userId, UpdateUserRequest request) {
+        String sql = """
+                UPDATE users
+                SET full_name = ?, email = ?, phone = ?, is_active = ?
+                WHERE user_id = ?
+                """;
+
+        return jdbcTemplate.update(sql,
+                request.fullName(),
+                request.email(),
+                request.phone(),
+                request.isActive(),
+                userId
+        );
+    }
+
+    public int deleteById(Long userId) {
+        String sql = "DELETE FROM users WHERE user_id = ?";
+        return jdbcTemplate.update(sql, userId);
     }
 }

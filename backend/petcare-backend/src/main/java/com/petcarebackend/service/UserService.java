@@ -1,6 +1,7 @@
 package com.petcarebackend.service;
 
 import com.petcarebackend.dto.user.CreateUserRequest;
+import com.petcarebackend.dto.user.UpdateUserRequest;
 import com.petcarebackend.dto.user.UserResponse;
 import com.petcarebackend.exception.BadRequestException;
 import com.petcarebackend.exception.NotFoundException;
@@ -42,6 +43,29 @@ public class UserService {
         return getUserById(userId);
     }
 
+    public UserResponse updateUser(Long userId, UpdateUserRequest request) {
+        User existingUser = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found: " + userId));
+
+        validateUpdateUserRequest(request);
+
+        userRepository.findByEmail(request.email())
+                .ifPresent(foundUser -> {
+                    if (!foundUser.userId().equals(userId)) {
+                        throw new BadRequestException("Email is already registered.");
+                    }
+                });
+
+        userRepository.update(userId, request);
+        return getUserById(userId);
+    }
+
+    public void deleteUser(Long userId) {
+        if (userRepository.deleteById(userId) == 0) {
+            throw new NotFoundException("User not found: " + userId);
+        }
+    }
+
     private void validateCreateUserRequest(CreateUserRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required.");
@@ -54,6 +78,21 @@ public class UserService {
         }
         if (isBlank(request.password())) {
             throw new BadRequestException("password is required.");
+        }
+    }
+
+    private void validateUpdateUserRequest(UpdateUserRequest request) {
+        if (request == null) {
+            throw new BadRequestException("Request body is required.");
+        }
+        if (isBlank(request.fullName())) {
+            throw new BadRequestException("fullName is required.");
+        }
+        if (isBlank(request.email())) {
+            throw new BadRequestException("email is required.");
+        }
+        if (request.isActive() == null) {
+            throw new BadRequestException("isActive is required.");
         }
     }
 
