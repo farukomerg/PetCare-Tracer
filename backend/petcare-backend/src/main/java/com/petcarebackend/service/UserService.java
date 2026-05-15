@@ -9,14 +9,17 @@ import com.petcarebackend.model.User;
 import com.petcarebackend.repository.UserRepository;
 import java.util.List;
 import org.springframework.stereotype.Service;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public List<UserResponse> getAllUsers() {
@@ -39,7 +42,8 @@ public class UserService {
                     throw new BadRequestException("Email is already registered.");
                 });
 
-        Long userId = userRepository.save(request, request.password().trim());
+        String passwordHash = passwordEncoder.encode(request.password().trim());
+        Long userId = userRepository.save(request, passwordHash);
         return getUserById(userId);
     }
 

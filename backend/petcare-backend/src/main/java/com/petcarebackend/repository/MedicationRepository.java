@@ -78,7 +78,7 @@ public class MedicationRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"medication_id"});
             ps.setString(1, request.medicationName());
             ps.setString(2, request.form());
             ps.setString(3, request.description());

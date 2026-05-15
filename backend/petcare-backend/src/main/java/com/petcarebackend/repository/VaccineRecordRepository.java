@@ -84,7 +84,7 @@ public class VaccineRecordRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"vaccine_record_id"});
             ps.setLong(1, request.petId());
             ps.setLong(2, request.vaccineId());
             ps.setDate(3, Date.valueOf(request.applicationDate()));

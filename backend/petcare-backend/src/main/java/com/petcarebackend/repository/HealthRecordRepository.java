@@ -84,7 +84,7 @@ public class HealthRecordRepository {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
-            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"health_record_id"});
             ps.setLong(1, request.petId());
             ps.setString(2, request.recordType());
             ps.setDate(3, Date.valueOf(request.recordDate()));
