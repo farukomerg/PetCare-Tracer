@@ -5,3 +5,7 @@ target/
 build/
 out/
 .DS_Store
+backend-run.log
+backend/petcare-backend/target/
+backend/petcare-backend/.idea/
+.env
