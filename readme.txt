@@ -1,12 +1,10 @@
 PROJE TESLIM BILGI DOSYASI
 
-Grup No:
-[BURAYA GRUP NUMARASI YAZILACAK]
+Grup No: 18
 
 Ekip Uyeleri:
-1. [AD SOYAD] - [OGRENCI NUMARASI]
-2. [AD SOYAD] - [OGRENCI NUMARASI]
-3. [AD SOYAD] - [OGRENCI NUMARASI]
+1. Ömer Faruk Güler - 241307114
+
 
 Proje Konusu:
 PetCare-Tracer - Evcil hayvan sahiplerinin hayvanlarina ait saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek merkezden yonetebildigi kapsamli dijital takip platformu.
@@ -42,13 +40,6 @@ Klasor Icerigi:
 - docs
   Kurulum, kullanim ve ekran goruntusu rehberleri
 
-Gorev Dagilimi:
-1. [UYE ADI]
-   - [YAPTIGI GOREVLER]
-2. [UYE ADI]
-   - [YAPTIGI GOREVLER]
-3. [UYE ADI]
-   - [YAPTIGI GOREVLER]
 
 Projede Tamamlanan Ana Moduller:
 - Kullanici girisi ve kaydi
@@ -77,6 +68,3 @@ Teslim Icerigi:
 - Rapor
 - README.md
 - readme.txt
-
-Not:
-Bu dosyada koseli parantez ile birakilan alanlar ekip tarafindan kendi grup bilgilerine gore doldurulmalidir.

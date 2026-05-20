@@ -211,14 +211,4 @@ Asagidaki ekran goruntulerinin README veya rapora eklenmesi onerilir:
 - Prometheus targets
 - Grafana dashboard
 
-Ekran goruntulerini su klasorde toplayabilirsin:
 
-- `docs/screenshots`
-
-## Mevcut Durum
-
-Proje genel olarak teslime yakin bir seviyededir. Backend tarafi buyuk oranda tamamlanmistir. Kalan ana gelistirmeler mobil tarafta pet detay, saglik kayitlari ve hatirlatma ekranlarinin zenginlestirilmesi ile sunum/rapor son duzenlemeleridir.
-
-## Not
-
-Bu README proje teslimi icin hazirlandi. Grup bilgileri ve ekran goruntuleri eklendikten sonra dogrudan rapor veya zip iceriginde kullanilabilir.
