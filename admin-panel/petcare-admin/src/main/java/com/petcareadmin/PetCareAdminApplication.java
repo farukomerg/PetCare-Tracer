@@ -5,6 +5,7 @@ import com.petcareadmin.model.AppointmentItem;
 import com.petcareadmin.model.PetItem;
 import com.petcareadmin.model.ReminderItem;
 import com.petcareadmin.model.UserItem;
+import com.petcareadmin.ui.StatusBadgeCell;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import javafx.application.Application;
@@ -174,7 +175,15 @@ public class PetCareAdminApplication extends Application {
         table.getColumns().add(createTextColumn("Veteriner", AppointmentItem::vetName));
         table.getColumns().add(createTextColumn("Klinik", item -> stringValue(item.clinicName())));
         table.getColumns().add(createTextColumn("Tarih", item -> formatDateTime(item.appointmentTime())));
-        table.getColumns().add(createTextColumn("Durum", AppointmentItem::status));
+
+        // Custom Graphics: StatusBadgeCell — Canvas ile çizilen renkli badge
+        TableColumn<AppointmentItem, String> statusCol = new TableColumn<>("Durum");
+        statusCol.setCellValueFactory(cellData ->
+                new javafx.beans.property.ReadOnlyStringWrapper(cellData.getValue().status()));
+        statusCol.setCellFactory(col -> new StatusBadgeCell<>());
+        statusCol.setPrefWidth(130);
+        table.getColumns().add(statusCol);
+
         return new Tab("Randevular", table);
     }
 
@@ -185,7 +194,15 @@ public class PetCareAdminApplication extends Application {
         table.getColumns().add(createTextColumn("Tip", ReminderItem::reminderType));
         table.getColumns().add(createTextColumn("Baslik", ReminderItem::title));
         table.getColumns().add(createTextColumn("Hatirlatma", item -> formatDateTime(item.remindAt())));
-        table.getColumns().add(createTextColumn("Durum", ReminderItem::status));
+
+        // Custom Graphics: StatusBadgeCell — Canvas ile çizilen renkli badge
+        TableColumn<ReminderItem, String> statusCol = new TableColumn<>("Durum");
+        statusCol.setCellValueFactory(cellData ->
+                new javafx.beans.property.ReadOnlyStringWrapper(cellData.getValue().status()));
+        statusCol.setCellFactory(col -> new StatusBadgeCell<>());
+        statusCol.setPrefWidth(130);
+        table.getColumns().add(statusCol);
+
         return new Tab("Hatirlatmalar", table);
     }
 
