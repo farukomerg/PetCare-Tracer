@@ -79,7 +79,7 @@ class ReminderServiceTest {
     @Test
     void createDefaultsStatusToPendingWhenNull() {
         CreateReminderRequest request = new CreateReminderRequest(
-                1L, "vaccine", "Kuduz Asisi Hatirlatmasi", LocalDateTime.now().plusDays(1), null);
+                1L, "VACCINE", "Kuduz Asisi Hatirlatmasi", LocalDateTime.now().plusDays(1), null);
         when(petRepository.findById(1L)).thenReturn(Optional.of(samplePet()));
         when(reminderRepository.save(any())).thenReturn(3L);
         when(reminderRepository.findById(3L)).thenReturn(Optional.of(sampleReminder()));
@@ -93,7 +93,7 @@ class ReminderServiceTest {
     @Test
     void createNormalizesReminderTypeToUpperCase() {
         CreateReminderRequest request = new CreateReminderRequest(
-                1L, "medication", "Ilas Hatirlatmasi", LocalDateTime.now().plusDays(1), null);
+                1L, "MEDICATION", "Ilas Hatirlatmasi", LocalDateTime.now().plusDays(1), null);
         when(petRepository.findById(1L)).thenReturn(Optional.of(samplePet()));
         when(reminderRepository.save(any())).thenReturn(3L);
         when(reminderRepository.findById(3L)).thenReturn(Optional.of(
