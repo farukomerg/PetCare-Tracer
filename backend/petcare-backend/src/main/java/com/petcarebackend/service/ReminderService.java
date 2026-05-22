@@ -7,12 +7,13 @@ import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.Reminder;
 import com.petcarebackend.repository.PetRepository;
 import com.petcarebackend.repository.ReminderRepository;
+import com.petcarebackend.util.ValidationUtils;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
-public class ReminderService {
+public class ReminderService implements IReminderService {
 
     private static final Set<String> ALLOWED_TYPES = Set.of("VACCINE", "MEDICATION", "FEEDING", "APPOINTMENT", "GENERAL");
     private static final Set<String> ALLOWED_STATUS = Set.of("PENDING", "DONE", "CANCELLED");
@@ -25,52 +26,94 @@ public class ReminderService {
         this.petRepository = petRepository;
     }
 
-    public List<ReminderResponse> getAllReminders() {
+    @Override
+    public List<ReminderResponse> findAll() {
         return reminderRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public ReminderResponse getReminderById(Long reminderId) {
+    /** @deprecated Geriye dönük uyumluluk için; findAll() kullanınız. */
+    @Deprecated
+    public List<ReminderResponse> getAllReminders() {
+        return findAll();
+    }
+
+    @Override
+    public ReminderResponse findById(Long reminderId) {
         return reminderRepository.findById(reminderId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("Reminder not found: " + reminderId));
     }
 
-    public List<ReminderResponse> getRemindersByPetId(Long petId) {
+    /** @deprecated Geriye dönük uyumluluk için; findById() kullanınız. */
+    @Deprecated
+    public ReminderResponse getReminderById(Long reminderId) {
+        return findById(reminderId);
+    }
+
+    @Override
+    public List<ReminderResponse> findByPetId(Long petId) {
         ensurePetExists(petId);
         return reminderRepository.findByPetId(petId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public ReminderResponse createReminder(CreateReminderRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; findByPetId() kullanınız. */
+    @Deprecated
+    public List<ReminderResponse> getRemindersByPetId(Long petId) {
+        return findByPetId(petId);
+    }
+
+    @Override
+    public ReminderResponse create(CreateReminderRequest request) {
         validateRequest(request);
         ensurePetExists(request.petId());
         CreateReminderRequest normalized = normalizeRequest(request);
         Long newId = reminderRepository.save(normalized);
-        return getReminderById(newId);
+        return findById(newId);
     }
 
-    public ReminderResponse updateReminder(Long reminderId, CreateReminderRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; create() kullanınız. */
+    @Deprecated
+    public ReminderResponse createReminder(CreateReminderRequest request) {
+        return create(request);
+    }
+
+    @Override
+    public ReminderResponse update(Long reminderId, CreateReminderRequest request) {
         if (reminderRepository.findById(reminderId).isEmpty()) {
             throw new NotFoundException("Reminder not found: " + reminderId);
         }
         validateRequest(request);
         ensurePetExists(request.petId());
         reminderRepository.update(reminderId, normalizeRequest(request));
-        return getReminderById(reminderId);
+        return findById(reminderId);
     }
 
-    public void deleteReminder(Long reminderId) {
+    /** @deprecated Geriye dönük uyumluluk için; update() kullanınız. */
+    @Deprecated
+    public ReminderResponse updateReminder(Long reminderId, CreateReminderRequest request) {
+        return update(reminderId, request);
+    }
+
+    @Override
+    public void delete(Long reminderId) {
         if (reminderRepository.deleteById(reminderId) == 0) {
             throw new NotFoundException("Reminder not found: " + reminderId);
         }
     }
 
+    /** @deprecated Geriye dönük uyumluluk için; delete() kullanınız. */
+    @Deprecated
+    public void deleteReminder(Long reminderId) {
+        delete(reminderId);
+    }
+
     private CreateReminderRequest normalizeRequest(CreateReminderRequest request) {
         String type = request.reminderType().trim().toUpperCase();
-        String status = request.status() == null || request.status().isBlank()
+        String status = ValidationUtils.isBlank(request.status())
                 ? "PENDING"
                 : request.status().trim().toUpperCase();
         return new CreateReminderRequest(
@@ -95,10 +138,10 @@ public class ReminderService {
         if (request.petId() == null) {
             throw new BadRequestException("petId is required.");
         }
-        if (request.reminderType() == null || request.reminderType().isBlank()) {
+        if (ValidationUtils.isBlank(request.reminderType())) {
             throw new BadRequestException("reminderType is required.");
         }
-        if (request.title() == null || request.title().isBlank()) {
+        if (ValidationUtils.isBlank(request.title())) {
             throw new BadRequestException("title is required.");
         }
         if (request.remindAt() == null) {
@@ -108,7 +151,7 @@ public class ReminderService {
         if (!ALLOWED_TYPES.contains(type)) {
             throw new BadRequestException("reminderType must be one of: VACCINE, MEDICATION, FEEDING, APPOINTMENT, GENERAL");
         }
-        String status = request.status() == null || request.status().isBlank()
+        String status = ValidationUtils.isBlank(request.status())
                 ? "PENDING"
                 : request.status().trim().toUpperCase();
         if (!ALLOWED_STATUS.contains(status)) {

@@ -8,11 +8,12 @@ import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.Pet;
 import com.petcarebackend.repository.PetRepository;
 import com.petcarebackend.repository.UserRepository;
+import com.petcarebackend.util.ValidationUtils;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class PetService {
+public class PetService implements IPetService {
 
     private final PetRepository petRepository;
     private final UserRepository userRepository;
@@ -22,33 +23,62 @@ public class PetService {
         this.userRepository = userRepository;
     }
 
-    public List<PetResponse> getAllPets() {
+    @Override
+    public List<PetResponse> findAll() {
         return petRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public PetResponse getPetById(Long petId) {
+    /** @deprecated Geriye dönük uyumluluk için; findAll() kullanınız. */
+    @Deprecated
+    public List<PetResponse> getAllPets() {
+        return findAll();
+    }
+
+    @Override
+    public PetResponse findById(Long petId) {
         return petRepository.findById(petId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("Pet not found: " + petId));
     }
 
-    public List<PetResponse> getPetsByUserId(Long userId) {
+    /** @deprecated Geriye dönük uyumluluk için; findById() kullanınız. */
+    @Deprecated
+    public PetResponse getPetById(Long petId) {
+        return findById(petId);
+    }
+
+    @Override
+    public List<PetResponse> findByUserId(Long userId) {
         ensureUserExists(userId);
         return petRepository.findByUserId(userId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public PetResponse createPet(CreatePetRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; findByUserId() kullanınız. */
+    @Deprecated
+    public List<PetResponse> getPetsByUserId(Long userId) {
+        return findByUserId(userId);
+    }
+
+    @Override
+    public PetResponse create(CreatePetRequest request) {
         validateCreatePetRequest(request);
         ensureUserExists(request.userId());
         Long petId = petRepository.save(request);
-        return getPetById(petId);
+        return findById(petId);
     }
 
-    public PetResponse updatePet(Long petId, UpdatePetRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; create() kullanınız. */
+    @Deprecated
+    public PetResponse createPet(CreatePetRequest request) {
+        return create(request);
+    }
+
+    @Override
+    public PetResponse update(Long petId, UpdatePetRequest request) {
         if (petRepository.findById(petId).isEmpty()) {
             throw new NotFoundException("Pet not found: " + petId);
         }
@@ -56,13 +86,26 @@ public class PetService {
         validateUpdatePetRequest(request);
         ensureUserExists(request.userId());
         petRepository.update(petId, request);
-        return getPetById(petId);
+        return findById(petId);
     }
 
-    public void deletePet(Long petId) {
+    /** @deprecated Geriye dönük uyumluluk için; update() kullanınız. */
+    @Deprecated
+    public PetResponse updatePet(Long petId, UpdatePetRequest request) {
+        return update(petId, request);
+    }
+
+    @Override
+    public void delete(Long petId) {
         if (petRepository.deleteById(petId) == 0) {
             throw new NotFoundException("Pet not found: " + petId);
         }
+    }
+
+    /** @deprecated Geriye dönük uyumluluk için; delete() kullanınız. */
+    @Deprecated
+    public void deletePet(Long petId) {
+        delete(petId);
     }
 
     private void ensureUserExists(Long userId) {
@@ -78,10 +121,10 @@ public class PetService {
         if (request.userId() == null) {
             throw new BadRequestException("userId is required.");
         }
-        if (isBlank(request.petName())) {
+        if (ValidationUtils.isBlank(request.petName())) {
             throw new BadRequestException("petName is required.");
         }
-        if (isBlank(request.species())) {
+        if (ValidationUtils.isBlank(request.species())) {
             throw new BadRequestException("species is required.");
         }
     }
@@ -93,17 +136,14 @@ public class PetService {
         if (request.userId() == null) {
             throw new BadRequestException("userId is required.");
         }
-        if (isBlank(request.petName())) {
+        if (ValidationUtils.isBlank(request.petName())) {
             throw new BadRequestException("petName is required.");
         }
-        if (isBlank(request.species())) {
+        if (ValidationUtils.isBlank(request.species())) {
             throw new BadRequestException("species is required.");
         }
     }
 
-    private boolean isBlank(String value) {
-        return value == null || value.isBlank();
-    }
 
     private PetResponse toResponse(Pet pet) {
         return new PetResponse(

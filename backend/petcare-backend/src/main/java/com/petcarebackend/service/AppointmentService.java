@@ -7,12 +7,13 @@ import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.Appointment;
 import com.petcarebackend.repository.AppointmentRepository;
 import com.petcarebackend.repository.PetRepository;
+import com.petcarebackend.util.ValidationUtils;
 import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AppointmentService {
+public class AppointmentService implements IAppointmentService {
 
     private static final Set<String> ALLOWED_STATUS = Set.of("PLANNED", "COMPLETED", "CANCELLED");
 
@@ -24,51 +25,93 @@ public class AppointmentService {
         this.petRepository = petRepository;
     }
 
-    public List<AppointmentResponse> getAllAppointments() {
+    @Override
+    public List<AppointmentResponse> findAll() {
         return appointmentRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public AppointmentResponse getAppointmentById(Long appointmentId) {
+    /** @deprecated Geriye dönük uyumluluk için; findAll() kullanınız. */
+    @Deprecated
+    public List<AppointmentResponse> getAllAppointments() {
+        return findAll();
+    }
+
+    @Override
+    public AppointmentResponse findById(Long appointmentId) {
         return appointmentRepository.findById(appointmentId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("Appointment not found: " + appointmentId));
     }
 
-    public List<AppointmentResponse> getAppointmentsByPetId(Long petId) {
+    /** @deprecated Geriye dönük uyumluluk için; findById() kullanınız. */
+    @Deprecated
+    public AppointmentResponse getAppointmentById(Long appointmentId) {
+        return findById(appointmentId);
+    }
+
+    @Override
+    public List<AppointmentResponse> findByPetId(Long petId) {
         ensurePetExists(petId);
         return appointmentRepository.findByPetId(petId).stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; findByPetId() kullanınız. */
+    @Deprecated
+    public List<AppointmentResponse> getAppointmentsByPetId(Long petId) {
+        return findByPetId(petId);
+    }
+
+    @Override
+    public AppointmentResponse create(CreateAppointmentRequest request) {
         validateRequest(request);
         ensurePetExists(request.petId());
         CreateAppointmentRequest normalized = normalizeRequest(request);
         Long newId = appointmentRepository.save(normalized);
-        return getAppointmentById(newId);
+        return findById(newId);
     }
 
-    public AppointmentResponse updateAppointment(Long appointmentId, CreateAppointmentRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; create() kullanınız. */
+    @Deprecated
+    public AppointmentResponse createAppointment(CreateAppointmentRequest request) {
+        return create(request);
+    }
+
+    @Override
+    public AppointmentResponse update(Long appointmentId, CreateAppointmentRequest request) {
         if (appointmentRepository.findById(appointmentId).isEmpty()) {
             throw new NotFoundException("Appointment not found: " + appointmentId);
         }
         validateRequest(request);
         ensurePetExists(request.petId());
         appointmentRepository.update(appointmentId, normalizeRequest(request));
-        return getAppointmentById(appointmentId);
+        return findById(appointmentId);
     }
 
-    public void deleteAppointment(Long appointmentId) {
+    /** @deprecated Geriye dönük uyumluluk için; update() kullanınız. */
+    @Deprecated
+    public AppointmentResponse updateAppointment(Long appointmentId, CreateAppointmentRequest request) {
+        return update(appointmentId, request);
+    }
+
+    @Override
+    public void delete(Long appointmentId) {
         if (appointmentRepository.deleteById(appointmentId) == 0) {
             throw new NotFoundException("Appointment not found: " + appointmentId);
         }
     }
 
+    /** @deprecated Geriye dönük uyumluluk için; delete() kullanınız. */
+    @Deprecated
+    public void deleteAppointment(Long appointmentId) {
+        delete(appointmentId);
+    }
+
     private CreateAppointmentRequest normalizeRequest(CreateAppointmentRequest request) {
-        String status = request.status() == null || request.status().isBlank()
+        String status = ValidationUtils.isBlank(request.status())
                 ? "PLANNED"
                 : request.status().trim().toUpperCase();
         return new CreateAppointmentRequest(
@@ -94,13 +137,13 @@ public class AppointmentService {
         if (request.petId() == null) {
             throw new BadRequestException("petId is required.");
         }
-        if (request.vetName() == null || request.vetName().isBlank()) {
+        if (ValidationUtils.isBlank(request.vetName())) {
             throw new BadRequestException("vetName is required.");
         }
         if (request.appointmentTime() == null) {
             throw new BadRequestException("appointmentTime is required.");
         }
-        String status = request.status() == null || request.status().isBlank()
+        String status = ValidationUtils.isBlank(request.status())
                 ? "PLANNED"
                 : request.status().trim().toUpperCase();
         if (!ALLOWED_STATUS.contains(status)) {

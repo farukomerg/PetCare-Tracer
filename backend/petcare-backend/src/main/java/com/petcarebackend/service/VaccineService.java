@@ -6,11 +6,12 @@ import com.petcarebackend.exception.BadRequestException;
 import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.Vaccine;
 import com.petcarebackend.repository.VaccineRepository;
+import com.petcarebackend.util.ValidationUtils;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
-public class VaccineService {
+public class VaccineService implements IVaccineService {
 
     private final VaccineRepository vaccineRepository;
 
@@ -18,19 +19,34 @@ public class VaccineService {
         this.vaccineRepository = vaccineRepository;
     }
 
-    public List<VaccineResponse> getAllVaccines() {
+    @Override
+    public List<VaccineResponse> findAll() {
         return vaccineRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public VaccineResponse getVaccineById(Long vaccineId) {
+    /** @deprecated Geriye dönük uyumluluk için; findAll() kullanınız. */
+    @Deprecated
+    public List<VaccineResponse> getAllVaccines() {
+        return findAll();
+    }
+
+    @Override
+    public VaccineResponse findById(Long vaccineId) {
         return vaccineRepository.findById(vaccineId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("Vaccine not found: " + vaccineId));
     }
 
-    public VaccineResponse createVaccine(CreateVaccineRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; findById() kullanınız. */
+    @Deprecated
+    public VaccineResponse getVaccineById(Long vaccineId) {
+        return findById(vaccineId);
+    }
+
+    @Override
+    public VaccineResponse create(CreateVaccineRequest request) {
         validateRequest(request);
 
         vaccineRepository.findByName(request.vaccineName().trim())
@@ -39,10 +55,17 @@ public class VaccineService {
                 });
 
         Long newId = vaccineRepository.save(normalizeRequest(request));
-        return getVaccineById(newId);
+        return findById(newId);
     }
 
-    public VaccineResponse updateVaccine(Long vaccineId, CreateVaccineRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; create() kullanınız. */
+    @Deprecated
+    public VaccineResponse createVaccine(CreateVaccineRequest request) {
+        return create(request);
+    }
+
+    @Override
+    public VaccineResponse update(Long vaccineId, CreateVaccineRequest request) {
         if (vaccineRepository.findById(vaccineId).isEmpty()) {
             throw new NotFoundException("Vaccine not found: " + vaccineId);
         }
@@ -54,19 +77,32 @@ public class VaccineService {
                     }
                 });
         vaccineRepository.update(vaccineId, normalizeRequest(request));
-        return getVaccineById(vaccineId);
+        return findById(vaccineId);
     }
 
-    public void deleteVaccine(Long vaccineId) {
+    /** @deprecated Geriye dönük uyumluluk için; update() kullanınız. */
+    @Deprecated
+    public VaccineResponse updateVaccine(Long vaccineId, CreateVaccineRequest request) {
+        return update(vaccineId, request);
+    }
+
+    @Override
+    public void delete(Long vaccineId) {
         if (vaccineRepository.deleteById(vaccineId) == 0) {
             throw new NotFoundException("Vaccine not found: " + vaccineId);
         }
     }
 
+    /** @deprecated Geriye dönük uyumluluk için; delete() kullanınız. */
+    @Deprecated
+    public void deleteVaccine(Long vaccineId) {
+        delete(vaccineId);
+    }
+
     private CreateVaccineRequest normalizeRequest(CreateVaccineRequest request) {
         return new CreateVaccineRequest(
                 request.vaccineName().trim(),
-                request.description() != null ? request.description().trim() : null,
+                ValidationUtils.trimOrNull(request.description()),
                 request.repeatDays()
         );
     }
@@ -75,7 +111,7 @@ public class VaccineService {
         if (request == null) {
             throw new BadRequestException("Request body is required.");
         }
-        if (request.vaccineName() == null || request.vaccineName().isBlank()) {
+        if (ValidationUtils.isBlank(request.vaccineName())) {
             throw new BadRequestException("vaccineName is required.");
         }
         if (request.repeatDays() != null && request.repeatDays() < 0) {

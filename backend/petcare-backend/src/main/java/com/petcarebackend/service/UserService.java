@@ -7,12 +7,13 @@ import com.petcarebackend.exception.BadRequestException;
 import com.petcarebackend.exception.NotFoundException;
 import com.petcarebackend.model.User;
 import com.petcarebackend.repository.UserRepository;
+import com.petcarebackend.util.ValidationUtils;
 import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -22,19 +23,34 @@ public class UserService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public List<UserResponse> getAllUsers() {
+    @Override
+    public List<UserResponse> findAll() {
         return userRepository.findAll().stream()
                 .map(this::toResponse)
                 .toList();
     }
 
-    public UserResponse getUserById(Long userId) {
+    /** @deprecated Geriye dönük uyumluluk için; findAll() kullanınız. */
+    @Deprecated
+    public List<UserResponse> getAllUsers() {
+        return findAll();
+    }
+
+    @Override
+    public UserResponse findById(Long userId) {
         return userRepository.findById(userId)
                 .map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
     }
 
-    public UserResponse createUser(CreateUserRequest request) {
+    /** @deprecated Geriye dönük uyumluluk için; findById() kullanınız. */
+    @Deprecated
+    public UserResponse getUserById(Long userId) {
+        return findById(userId);
+    }
+
+    @Override
+    public UserResponse create(CreateUserRequest request) {
         validateCreateUserRequest(request);
 
         userRepository.findByEmail(request.email())
@@ -44,11 +60,18 @@ public class UserService {
 
         String passwordHash = passwordEncoder.encode(request.password().trim());
         Long userId = userRepository.save(request, passwordHash);
-        return getUserById(userId);
+        return findById(userId);
     }
 
-    public UserResponse updateUser(Long userId, UpdateUserRequest request) {
-        User existingUser = userRepository.findById(userId)
+    /** @deprecated Geriye dönük uyumluluk için; create() kullanınız. */
+    @Deprecated
+    public UserResponse createUser(CreateUserRequest request) {
+        return create(request);
+    }
+
+    @Override
+    public UserResponse update(Long userId, UpdateUserRequest request) {
+        userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
         validateUpdateUserRequest(request);
@@ -61,26 +84,39 @@ public class UserService {
                 });
 
         userRepository.update(userId, request);
-        return getUserById(userId);
+        return findById(userId);
     }
 
-    public void deleteUser(Long userId) {
+    /** @deprecated Geriye dönük uyumluluk için; update() kullanınız. */
+    @Deprecated
+    public UserResponse updateUser(Long userId, UpdateUserRequest request) {
+        return update(userId, request);
+    }
+
+    @Override
+    public void delete(Long userId) {
         if (userRepository.deleteById(userId) == 0) {
             throw new NotFoundException("User not found: " + userId);
         }
+    }
+
+    /** @deprecated Geriye dönük uyumluluk için; delete() kullanınız. */
+    @Deprecated
+    public void deleteUser(Long userId) {
+        delete(userId);
     }
 
     private void validateCreateUserRequest(CreateUserRequest request) {
         if (request == null) {
             throw new BadRequestException("Request body is required.");
         }
-        if (isBlank(request.fullName())) {
+        if (ValidationUtils.isBlank(request.fullName())) {
             throw new BadRequestException("fullName is required.");
         }
-        if (isBlank(request.email())) {
+        if (ValidationUtils.isBlank(request.email())) {
             throw new BadRequestException("email is required.");
         }
-        if (isBlank(request.password())) {
+        if (ValidationUtils.isBlank(request.password())) {
             throw new BadRequestException("password is required.");
         }
     }
@@ -89,19 +125,15 @@ public class UserService {
         if (request == null) {
             throw new BadRequestException("Request body is required.");
         }
-        if (isBlank(request.fullName())) {
+        if (ValidationUtils.isBlank(request.fullName())) {
             throw new BadRequestException("fullName is required.");
         }
-        if (isBlank(request.email())) {
+        if (ValidationUtils.isBlank(request.email())) {
             throw new BadRequestException("email is required.");
         }
         if (request.isActive() == null) {
             throw new BadRequestException("isActive is required.");
         }
-    }
-
-    private boolean isBlank(String value) {
-        return value == null || value.isBlank();
     }
 
     private UserResponse toResponse(User user) {
