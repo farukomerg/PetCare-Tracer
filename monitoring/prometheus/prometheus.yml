@@ -1,9 +1,28 @@
 global:
-  scrape_interval: 5s
-  evaluation_interval: 5s
+  scrape_interval: 15s
+  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: "petcare-backend"
+  # API Gateway
+  - job_name: "petcare-gateway"
     metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ["backend:8080"]
+      - targets: ["gateway:8080"]
+
+  # User Service
+  - job_name: "petcare-user-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["user-service:8081"]
+
+  # Pet Service
+  - job_name: "petcare-pet-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["pet-service:8082"]
+
+  # Care Service
+  - job_name: "petcare-care-service"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["care-service:8083"]

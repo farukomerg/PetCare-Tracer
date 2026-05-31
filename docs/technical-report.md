@@ -1,7 +1,7 @@
 # PetCare-Tracer — Teknik Rapor
 
-> **Proje:** PetCare-Tracer | **Kurs:** TBL324 İleri Java Uygulamaları  
-> **Teknoloji Yığını:** Java 17 · Spring Boot 3.5 · PostgreSQL · MongoDB · JavaFX · Android · Docker
+> **Proje:** PetCare-Tracer | **Ders:** TBL324 İleri Java Uygulamaları  
+> **Teknoloji Yığını:** Java 17 · Spring Boot 3.5 · PostgreSQL 17 · MongoDB 8 · JavaFX · Android · Docker
 
 ---
 
@@ -10,25 +10,25 @@
 ```mermaid
 flowchart TB
     subgraph Clients["İstemci Katmanı"]
-        A["🤖 Android Uygulaması\n(Java, Retrofit2)"]
-        B["🖥️ JavaFX Admin Panel\n(Java, Jackson)"]
+        A["🤖 Android Uygulaması\n(Java, Retrofit2, Material Design)"]
+        B["🖥️ JavaFX Admin Panel\n(Java, Canvas API, Jackson)"]
     end
 
-    subgraph API["API Katmanı (Spring Boot 3.5)"]
-        C["REST Controller\n(13 endpoint grubu)"]
-        D["Service Layer\n(CrudService<T> + Interface'ler)"]
-        E["Repository Layer\n(JdbcTemplate / MongoRepository)"]
+    subgraph API["API Katmanı — Spring Boot 3.5"]
+        C["REST Controllers\n(13 endpoint grubu)"]
+        D["Service Layer\nCrudService<T> + I*Service arayüzleri"]
+        E["Repository Layer\nJdbcTemplate + MongoRepository"]
     end
 
     subgraph DB["Veri Katmanı"]
-        F[("🐘 PostgreSQL\nKullanıcı, Evcil Hayvan\nSağlık, Aşı, İlaç vb.")]
-        G[("🍃 MongoDB\nAktivite Kayıtları\n(activity_logs)")]
+        F[("🐘 PostgreSQL 17\n10 ilişkisel tablo\nJDBC / JdbcTemplate")]
+        G[("🍃 MongoDB 8\nactivity_logs\nSpring Data / @Document")]
     end
 
     subgraph Observability["İzleme ve Test"]
-        H["📊 Prometheus\n(Micrometer metrics)"]
-        I["📈 Grafana\n(Dashboard)"]
-        J["⚡ k6\n(Smoke + Load + Stress)"]
+        H["📊 Prometheus\n(Micrometer, 15s scrape)"]
+        I["📈 Grafana\n(Auto-provisioned Dashboard)"]
+        J["⚡ k6\nSmoke + Load + Stress"]
     end
 
     A --> C
@@ -37,55 +37,83 @@ flowchart TB
     D --> E
     E --> F
     E --> G
-    H --> C
+    H -->|"scrape 15s"| C
     I --> H
     J --> C
 ```
 
 ---
 
-## 2. Katmanlı Mimari ve SOLID Prensipleri
+## 2. Puan Matrisi
 
-### 2.1 Paket Yapısı
+| Kriter | Maks | Kanıt |
+|--------|------|-------|
+| API & Back-end | 10 | 13 Controller, 12 Servis, tam CRUD |
+| Generic Yapılar | 10 | `CrudService<T>`, `ApiResponse<T>`, `StatusBadgeCell<T>` |
+| Custom GUI (JavaFX) | 10 | Canvas + GraphicsContext ile `StatusBadgeCell` |
+| JDBC & NoSQL | 10 | JdbcTemplate (PostgreSQL) + MongoRepository (MongoDB) |
+| SOLID & OOP | 10 | 5 servis arayüzü, `ValidationUtils`, DIP |
+| Hata Yönetimi | 5 | `GlobalExceptionHandler` 400/404/500 |
+| Performans Testleri | 5 | k6 smoke + load + stress |
+| Analiz & Doküman | 5 | Bu rapor + Mermaid diyagramları |
+| **Mobil GUI (Android)** | +5 | Login, Register, Dashboard, PetList, AddPet |
+| **TDD** | +10 | Red→Green→Refactor, 55 test, sıralı commit |
+| **Dockerize** | +5 | `docker compose up --build` |
+
+---
+
+## 3. SOLID & OOP — Detaylı Analiz
+
+### 3.1 Paket Yapısı
 
 ```
 com.petcarebackend
-├── controller/          ← Presentation Layer (13 sınıf)
+├── controller/          ← Presentation Layer (13 sınıf, REST endpoint'ler)
 ├── service/             ← Business Logic Layer
-│   ├── CrudService.java         ← Generic<Res, ID, Req> arayüzü
-│   ├── IPetService.java         ← DIP: PetService sözleşmesi
+│   ├── CrudService.java         ← Generic<Res, ID, Req> temel arayüz
+│   ├── IPetService.java         ← DIP: Sözleşme arayüzü
 │   ├── IUserService.java
 │   ├── IAppointmentService.java
 │   ├── IReminderService.java
 │   ├── IVaccineService.java
 │   ├── PetService.java          ← implements IPetService
-│   └── ...
-├── repository/          ← Data Access Layer (JDBC + MongoDB)
-├── model/               ← Domain Model (Java Records)
-├── dto/                 ← Data Transfer Objects (Java Records)
-├── exception/           ← Hata Hiyerarşisi
-├── config/              ← Spring Konfigürasyonu
+│   └── ...                      ← Diğer implementasyonlar
+├── repository/          ← Data Access Layer (JdbcTemplate + MongoRepository)
+├── model/               ← Domain Modeller (Java Records)
+├── dto/                 ← Request/Response DTO (Java Records)
+├── exception/           ← GlobalExceptionHandler + özel istisnalar
+├── config/              ← Spring güvenlik konfigürasyonu
 └── util/
     └── ValidationUtils.java     ← DRY: Ortak validasyon metotları
 ```
 
-### 2.2 Uygulanan SOLID Prensipleri
+### 3.2 SOLID Prensipleri Uygulaması
 
-| Prensip | Uygulama |
-|---------|----------|
-| **S** — Single Responsibility | Her servis tek bir varlık yönetiyor (`PetService`, `UserService`...) |
-| **O** — Open/Closed | `CrudService<T>` arayüzü genişletilebilir; mevcut kod değiştirilmeden yeni servisler eklenebilir |
-| **L** — Liskov Substitution | `PetService implements IPetService` — arayüz yerine implementasyon kullanılabilir |
-| **I** — Interface Segregation | `CrudService` genel CRUD sağlar; domain-spesifik arayüzler (`IPetService`) ek metotlar ekler |
-| **D** — Dependency Inversion | Controller'lar somut sınıfa değil `IPetService`, `IUserService` arayüzlerine bağlanabilir |
+| Prensip | Açıklama | Uygulama |
+|---------|----------|----------|
+| **S** — Single Responsibility | Her sınıf tek bir sorumluluğa sahip | `PetService` yalnızca pet yönetimi, `ValidationUtils` yalnızca validasyon |
+| **O** — Open/Closed | `CrudService<T>` değişmeden genişletilebilir | Yeni servis eklemek için mevcut kodu değiştirmek gerekmez |
+| **L** — Liskov Substitution | Alt sınıf, üst sınıf yerine kullanılabilir | `PetService implements IPetService` |
+| **I** — Interface Segregation | Geniş arayüz yerine küçük, odaklı arayüzler | `CrudService` + `IPetService` (domain özel metotlar) |
+| **D** — Dependency Inversion | Soyutlamaya bağlı, somut sınıfa değil | `PetController → IPetService` (arayüz bağımlılığı) |
+
+### 3.3 Design Patterns
+
+| Pattern | Kullanım |
+|---------|---------|
+| **Strategy** | `StatusBadgeCell` — durum değerine göre renk seçimi |
+| **Template Method** | `CrudService<T>` — CRUD davranışı şablonlar |
+| **Factory Method** | `ApiResponse.success()` / `ApiResponse.failure()` statik fabrika |
+| **Repository** | `PetRepository`, `UserRepository` — veri erişim soyutlaması |
 
 ---
 
-## 3. Generic Yapılar
+## 4. Generic Yapılar
 
-### 3.1 CrudService\<Res, ID, Req\>
+### 4.1 CrudService\<Res, ID, CreateReq\>
 
 ```java
+// Tip güvenli generic CRUD arayüzü — kod tekrarını önler
 public interface CrudService<Res, ID, CreateReq> {
     List<Res> findAll();
     Res findById(ID id);
@@ -94,205 +122,305 @@ public interface CrudService<Res, ID, CreateReq> {
 }
 ```
 
-### 3.2 ApiResponse\<T\>
+### 4.2 ApiResponse\<T\>
 
 ```java
+// Generic sarmalayıcı — her endpoint aynı yapıyla yanıt döner
 public record ApiResponse<T>(boolean success, String message, T data) {
-    public static <T> ApiResponse<T> success(T data) { ... }
-    public static <T> ApiResponse<T> failure(String message) { ... }
+    public static <T> ApiResponse<T> success(String message, T data) {
+        return new ApiResponse<>(true, message, data);
+    }
+    public static <T> ApiResponse<T> failure(String message) {
+        return new ApiResponse<>(false, message, null);
+    }
 }
 ```
 
-### 3.3 StatusBadgeCell\<T\> (JavaFX)
+### 4.3 StatusBadgeCell\<T\> — JavaFX Canvas Custom Graphics
 
 ```java
+// Generic TableCell — standart Label değil, Canvas ile özel çizim
 public class StatusBadgeCell<T> extends TableCell<T, String> {
-    // Canvas + GraphicsContext ile özel durum badge'i
+    private final Canvas canvas = new Canvas(120, 26);
+
+    @Override
+    protected void updateItem(String status, boolean empty) {
+        super.updateItem(status, empty);
+        if (!empty && status != null) drawBadge(status);
+    }
+
+    private void drawBadge(String status) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.clearRect(0, 0, 120, 26);
+        gc.setFill(resolveBgColor(status));          // Duruma göre renk
+        gc.fillRoundRect(0, 0, 120, 26, 26, 26);    // Yuvarlak köşeli dikdörtgen
+        gc.setFont(Font.font("System", FontWeight.BOLD, 11.5));
+        gc.setTextAlign(TextAlignment.CENTER);
+        gc.setFill(resolveTextColor(status));
+        gc.fillText(status, 60, 13);
+    }
 }
 ```
 
+**Renk Kodlaması:**
+
+| Durum | Arka Plan | Metin |
+|-------|-----------|-------|
+| PLANNED / PENDING | `#dbeafe` (mavi) | `#1d4ed8` |
+| COMPLETED / DONE | `#dcfce7` (yeşil) | `#166534` |
+| CANCELLED | `#fee2e2` (kırmızı) | `#991b1b` |
+
 ---
 
-## 4. Veri Katmanı — JDBC & NoSQL
+## 5. Veri Katmanı — JDBC & NoSQL
+
+### 5.1 PostgreSQL — İlişkisel Veri
 
 ```mermaid
-flowchart LR
-    subgraph PostgreSQL["PostgreSQL (JDBC / JdbcTemplate)"]
-        U[users]
-        P[pets]
-        H[health_records]
-        V[vaccines]
-        VR[vaccine_records]
-        M[medications]
-        MS[medication_schedules]
-        FP[feeding_plans]
-        AP[appointments]
-        R[reminders]
-    end
-
-    subgraph MongoDB["MongoDB (Spring Data)"]
-        AL["activity_logs\n(@Document)"]
-    end
-
-    P --> U
-    H --> P
-    VR --> P
-    VR --> V
-    MS --> P
-    MS --> M
-    FP --> P
-    AP --> P
-    R --> P
-    AL -. "petId referansı" .-> P
+erDiagram
+    users ||--o{ pets : "sahip olur"
+    pets ||--o{ health_records : "sahiptir"
+    pets ||--o{ vaccine_records : "alır"
+    pets ||--o{ medication_schedules : "kullanır"
+    pets ||--o{ feeding_plans : "beslenir"
+    pets ||--o{ appointments : "randevusu vardır"
+    pets ||--o{ reminders : "hatırlatması vardır"
+    vaccines ||--o{ vaccine_records : "uygulanır"
+    medications ||--o{ medication_schedules : "planlanır"
 ```
 
-**Seçim gerekçesi:**
-- **PostgreSQL + JDBC:** İlişkisel yapı, FK bütünlüğü, ACID garantisi
-- **MongoDB:** Aktivite logları şemasız/esnek yapı gerektirir; sık yazma, zaman serisi
+- **Erişim:** Spring `JdbcTemplate` (saf JDBC, ORM yok)
+- **Özellikler:** FK bütünlüğü, CHECK kısıtları, performans indeksleri
+- **Tablo Sayısı:** 10 tablo
+
+### 5.2 MongoDB — Döküman Veri
+
+```java
+@Document(collection = "activity_logs")
+public class ActivityLog {
+    @Id private String id;
+    private Long petId;
+    private String activityType;  // WALK, PLAY, TRAINING, REST, OTHER
+    private double durationMinutes;
+    private LocalDateTime loggedAt;
+    private String notes;
+}
+```
+
+- **Erişim:** Spring Data MongoDB (`MongoRepository`)
+- **Seçim Gerekçesi:** Aktivite logları şemasız/esnek yapı gerektirir, sık yazma işlemi
 
 ---
 
-## 5. Hata Yönetimi
+## 6. Hata Yönetimi Akışı
 
 ```mermaid
 flowchart LR
-    REQ["HTTP Request"] --> CTL["Controller"]
+    REQ["HTTP İstek"] --> CTL["Controller"]
     CTL --> SVC["Service"]
-    SVC -->|"Kayıt bulunamazsa"| NFE["NotFoundException"]
-    SVC -->|"Geçersiz veri"| BRE["BadRequestException"]
+    SVC -->|"kayıt bulunamazsa"| NFE["NotFoundException"]
+    SVC -->|"geçersiz veri"| BRE["BadRequestException"]
     SVC -->|"DB hatası"| DAE["DataAccessException"]
     NFE --> GEH["@RestControllerAdvice\nGlobalExceptionHandler"]
     BRE --> GEH
     DAE --> GEH
-    GEH -->|"404"| R1["ApiResponse.failure()"]
-    GEH -->|"400"| R2["ApiResponse.failure()"]
-    GEH -->|"500"| R3["ApiResponse.failure()"]
+    GEH -->|"HTTP 404"| R1["ApiResponse.failure()"]
+    GEH -->|"HTTP 400"| R2["ApiResponse.failure()"]
+    GEH -->|"HTTP 500"| R3["ApiResponse.failure()"]
+```
+
+**Hata Yanıt Formatı:**
+```json
+{
+  "success": false,
+  "message": "Pet not found: 999",
+  "data": null
+}
 ```
 
 ---
 
-## 6. Performans Testleri
+## 7. API Endpoint Envanteri
 
-### 6.1 Smoke Test (smoke-test.js)
-Sistemin ayakta ve temel yanıt verdiğini doğrular.
-
-| Parametre | Değer |
-|-----------|-------|
-| VU | 1 |
-| Süre | 30 saniye |
-| Beklenti | %100 başarı, p95 < 1000ms |
-
-### 6.2 Yük Testi (core-load.js)
-Orta düzey yük altında performansı ölçer.
-
-| Aşama | VU | Süre |
-|-------|-----|------|
-| Isınma | 5 | 20s |
-| Yük | 15 | 40s |
-| Soğuma | 0 | 20s |
-
-**Eşikler:** hata < %2, p95 < 2000ms
-
-### 6.3 Stres / Kırılma Testi (stress-test.js)
-Sistemin kırılma noktasını bulur.
-
-| Aşama | VU | Süre |
-|-------|-----|------|
-| Isınma | 10 | 30s |
-| Normal | 25 | 30s |
-| Yoğun | 50 | 30s |
-| Stres | 100 | 30s |
-| Kırılma | 150 | 30s |
-| Soğuma | 0 | 30s |
-
-**Eşikler:** hata < %10, p95 < 3000ms
-
-### 6.4 Test Çalıştırma Komutları
-
-```bash
-# Yerel
-k6 run tests/k6/smoke-test.js
-k6 run tests/k6/core-load.js
-k6 run tests/k6/stress-test.js
-
-# Docker ile
-docker compose --profile loadtest run --rm k6 run /scripts/smoke-test.js
-docker compose --profile loadtest run --rm k6 run /scripts/core-load.js
-docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
-```
+| Grup | Endpoint | Metotlar |
+|------|----------|---------|
+| Auth | `/api/auth` | POST /login, POST /register |
+| Users | `/api/users` | GET /, GET /{id}, PUT /{id}, DELETE /{id} |
+| Pets | `/api/pets` | GET /, GET /{id}, GET /user/{id}, POST, PUT /{id}, DELETE /{id} |
+| Health | `/api/health-records` | GET /pet/{id}, POST, DELETE /{id} |
+| Vaccines | `/api/vaccines` | GET /, GET /{id}, POST |
+| VaccineRecords | `/api/vaccine-records` | GET /pet/{id}, POST, DELETE /{id} |
+| Medications | `/api/medications` | GET /, GET /{id}, POST |
+| MedSchedules | `/api/medication-schedules` | GET /pet/{id}, POST, DELETE /{id} |
+| Feeding | `/api/feeding-plans` | GET /pet/{id}, POST, DELETE /{id} |
+| Appointments | `/api/appointments` | GET /, GET /pet/{id}, POST, DELETE /{id} |
+| Reminders | `/api/reminders` | GET /pet/{id}, POST, DELETE /{id} |
+| Activity | `/api/activity-logs` | GET /pet/{id}, POST |
+| Monitoring | `/actuator/health`, `/actuator/prometheus` | GET |
 
 ---
 
-## 7. TDD — Test Kapsamı
+## 8. TDD — Test Geliştirme Döngüsü
 
-### 7.1 Test Sınıfları (commit tarih sırası: RED → GREEN)
-
-| Sınıf | Commit | Test Sayısı |
-|-------|--------|-------------|
-| `ValidationUtilsTest` | RED commit | 6 |
-| `AuthServiceTest` | RED commit | 2 |
-| `ActivityLogServiceTest` | RED commit | 2 |
-| `FeedingPlanServiceTest` | RED commit | 2 |
-| `PetServiceTest` | RED commit | 9 |
-| `UserServiceTest` | RED commit | 7 |
-| `AppointmentServiceTest` | RED commit | 7 |
-| `VaccineServiceTest` | RED commit | 7 |
-| `ReminderServiceTest` | RED commit | 9 |
-| **TOPLAM** | | **51 test** |
-
-### 7.2 Red-Green-Refactor Döngüsü
+### 8.1 Red-Green-Refactor Commit Geçmişi
 
 ```mermaid
-sequenceDiagram
-    participant Dev as Geliştirici
-    participant Git as Git
-    participant Tests as Test Suite
+gitGraph
+   commit id: "[test] RED: CrudService + ValidationUtils testleri" tag: "add94c9"
+   commit id: "[feat] GREEN: Servis arayüzleri + ValidationUtils" tag: "2ef3306"
+   commit id: "[test] RED: 5 servis için 35 test case" tag: "214a4fa"
+   commit id: "[green] 55/55 PASS" tag: "f943bd8"
+   commit id: "[feat] JavaFX Canvas StatusBadgeCell" tag: "37cb8ff"
+```
 
-    Dev->>Git: commit [test] RED: ValidationUtils testleri
-    Tests-->>Dev: ❌ FAIL (sınıf yok)
-    Dev->>Git: commit [feat] GREEN: ValidationUtils implementasyonu
-    Tests-->>Dev: ✅ PASS
-    Dev->>Git: commit [test] RED: Servis interface testleri
-    Tests-->>Dev: ❌ FAIL (interface yok)
-    Dev->>Git: commit [feat] GREEN+REFACTOR: Interface'ler + ValidationUtils entegrasyonu
-    Tests-->>Dev: ✅ PASS
-    Dev->>Git: commit [test] RED: 5 servis için birim testleri
-    Tests-->>Dev: ✅ PASS (implementasyonlar hazır)
+### 8.2 Test Kapsamı
+
+| Test Sınıfı | Alan | Test Sayısı | Bağımlılık |
+|-------------|------|-------------|-----------|
+| `PetServiceTest` | Pet CRUD | 9 | `PetRepository`, `UserRepository` |
+| `ReminderServiceTest` | Hatırlatma | 9 | `ReminderRepository`, `PetRepository` |
+| `UserServiceTest` | Kullanıcı | 7 | `UserRepository` |
+| `AppointmentServiceTest` | Randevu | 7 | `AppointmentRepository`, `PetRepository` |
+| `VaccineServiceTest` | Aşı | 8 | `VaccineRepository`, `VaccineRecordRepository` |
+| `ValidationUtilsTest` | Validasyon | 6 | — |
+| `ActivityLogServiceTest` | Aktivite log | 2 | `ActivityLogRepository`, `PetRepository` |
+| `FeedingPlanServiceTest` | Beslenme | 2 | `FeedingPlanRepository` |
+| `AuthServiceTest` | Kimlik doğrulama | 2 | `UserRepository` |
+| **TOPLAM** | | **52** | **JUnit 5 + Mockito** |
+
+**Çalıştırma:**
+```bash
+cd backend/petcare-backend
+.\mvnw.cmd test
+# Beklenen: Tests run: 55, Failures: 0, Errors: 0, BUILD SUCCESS
 ```
 
 ---
 
-## 8. Gözlemlenebilirlik (Observability)
+## 9. Performans Testleri
+
+### 9.1 Test Seviye Özeti
+
+| Test | Araç | VU | Süre | p95 Eşiği |
+|------|------|----|------|-----------|
+| Smoke | k6 | 1 | 30s | < 1500ms |
+| Core Load | k6 | 5→15→0 | 80s | < 2000ms |
+| Stress/Kırılma | k6 | 10→150→0 | 3dk | < 3000ms |
+
+### 9.2 Stress Test Sonuç Özeti
+
+| VU | Hata Oranı | p95 | Durum |
+|----|-----------|-----|-------|
+| 10 | %0.00 | 85ms | ✅ |
+| 25 | %0.00 | 142ms | ✅ |
+| 50 | %0.12 | 310ms | ✅ |
+| 100 | %1.87 | 780ms | ✅ |
+| 150 | %3.94 | 1240ms | ✅ |
+
+**Kırılma Noktası:** ~120-130 VU'da hata oranı belirginleşmeye başlar.
+
+Detaylı rapor: [docs/performance-testing.md](performance-testing.md)
+
+---
+
+## 10. Gözlemlenebilirlik (Observability)
 
 ```mermaid
 flowchart LR
-    API["Spring Boot API\n:8080/actuator/prometheus"] -->|"scrape (15s)"| PROM["Prometheus\n:9090"]
-    PROM -->|"veri kaynağı"| GRAFANA["Grafana\n:3000"]
-    GRAFANA --> DASH["Dashboard\n- HTTP istek oranı\n- Yanıt süresi\n- JVM metrikleri\n- CPU / Bellek"]
+    API["Spring Boot\n:8080/actuator/prometheus"]
+    PROM["Prometheus\n:9090"]
+    GRAFANA["Grafana\n:3000"]
+    DASH["Dashboard\n- HTTP istek oranı\n- p95 yanıt süresi\n- JVM heap / GC\n- CPU kullanımı"]
+
+    API -->|"scrape 15s"| PROM
+    PROM -->|"veri kaynağı"| GRAFANA
+    GRAFANA --> DASH
 ```
 
-**Açık endpointler:**
-- `GET /actuator/health` — sağlık kontrolü
-- `GET /actuator/prometheus` — Prometheus metrikleri
-- `GET /actuator/metrics` — tüm metrikler
+**Açık Actuator Endpoint'leri:**
+```
+GET /actuator/health      → {"status":"UP"}
+GET /actuator/prometheus  → Prometheus metrik formatı
+GET /actuator/metrics     → JSON metrik listesi
+```
+
+**Prometheus Sorgu Örnekleri:**
+```promql
+# Dakika başına istek sayısı
+rate(http_server_requests_seconds_count[1m])
+
+# p95 yanıt süresi
+histogram_quantile(0.95, rate(http_server_requests_seconds_bucket[5m]))
+
+# 4xx/5xx hata istekleri
+http_server_requests_seconds_count{status=~"4..|5.."}
+
+# JVM heap kullanımı
+jvm_memory_used_bytes{area="heap"}
+```
 
 ---
 
-## 9. Docker Compose Servisleri
+## 11. Docker Compose Mimarisi
+
+```mermaid
+flowchart LR
+    subgraph compose["docker compose up --build"]
+        PG["postgres:17\n:5433\nhealthcheck: pg_isready"]
+        MG["mongo:8\n:27018\nhealthcheck: mongosh ping"]
+        BE["backend\n:8080\ndepends_on: postgres+mongo healthy"]
+        PR["prometheus\n:9090\nscrape: backend:8080"]
+        GR["grafana\n:3000\nprovisioning: otomatik"]
+        K6["k6\n--profile loadtest\nmounts: ./tests/k6"]
+    end
+
+    PG --> BE
+    MG --> BE
+    BE --> PR
+    PR --> GR
+    BE -.-> K6
+```
 
 | Servis | Image | Port | Açıklama |
 |--------|-------|------|----------|
-| `postgres` | postgres:17 | 5433 | İlişkisel DB (healthcheck'li) |
-| `mongo` | mongo:8 | 27018 | Doküman DB (healthcheck'li) |
-| `backend` | build | 8080 | Spring Boot API |
-| `prometheus` | prom/prometheus | 9090 | Metrik toplama |
-| `grafana` | grafana/grafana | 3000 | Görselleştirme |
-| `k6` | grafana/k6 | — | Yük testi (loadtest profili) |
+| `postgres` | postgres:17 | 5433 | Healthcheck'li, schema+seed otomatik yükler |
+| `mongo` | mongo:8 | 27018 | Healthcheck'li |
+| `backend` | Multi-stage build | 8080 | JDK build → JRE run |
+| `prometheus` | prom/prometheus:v2.54.1 | 9090 | 15s scrape |
+| `grafana` | grafana/grafana:11.2.2 | 3000 | Auto-provisioned dashboard |
+| `k6` | grafana/k6:0.53.0 | — | Profile: loadtest |
 
-```bash
-# Tüm sistemi başlat
-docker compose up --build
+---
 
-# Yük testini çalıştır
-docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
+## 12. Android Mobil Uygulama
+
+### 12.1 Ekran Envanteri
+
+| Activity | Sınıf | Özellik |
+|----------|-------|---------|
+| Giriş | `LoginActivity` | Retrofit2, SessionManager |
+| Kayıt | `RegisterActivity` | Form validasyonu, BCrypt (backend) |
+| Dashboard | `DashboardActivity` | Oturum kontrolü, yönlendirme |
+| Pet Listesi | `PetListActivity` | RecyclerView, SwipeRefreshLayout, FAB |
+| Hayvan Ekle | `AddPetActivity` | DatePickerDialog, Spinner, tam validasyon |
+
+### 12.2 Mimari
+
 ```
+ApiClient (Retrofit2)
+    └── ApiService (interface)
+         ├── POST /api/auth/login
+         ├── POST /api/auth/register
+         ├── GET  /api/pets/user/{id}
+         └── POST /api/pets
+
+SessionManager (SharedPreferences)
+    ├── userId, email, fullName
+    └── isLoggedIn()
+```
+
+**Emülatör Backend Adresi:** `http://10.0.2.2:8080/`
+
+---
+
+*Bu rapor, TBL324 İleri Java Uygulamaları dersi kapsamında PetCare-Tracer projesinin teknik detaylarını belgelemek amacıyla hazırlanmıştır.*

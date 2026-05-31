@@ -1,431 +1,522 @@
-<<<<<<< HEAD
-# PetCare-Tracer
+# 🐾 PetCare-Tracer
 
-PetCare-Tracer, evcil hayvan sahiplerinin saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek bir merkezden yonetebilmesi icin gelistirilmis cok katmanli bir takip platformudur. Proje, Ileri Java dersi kapsaminda Java tabanli backend, JavaFX admin paneli, Android istemci ve izleme/test altyapisi ile tasarlanmistir.
+<div align="center">
 
-## Proje Amaci
+> **TBL324 İleri Java Uygulamaları**
+> Evcil hayvan sağlık, aşı, ilaç, beslenme, randevu ve aktivite verilerini tek merkezden yöneten **çok katmanlı mikroservis Java platformu.**
 
-Bu projenin amaci, evcil hayvan sahiplerinin daginik halde tuttugu bilgileri tek bir dijital platformda toplamak ve asagidaki ihtiyaclari karsilamaktir:
+[![Java](https://img.shields.io/badge/Java-17-ED8B00?logo=openjdk&logoColor=white)](https://openjdk.org/projects/jdk/17/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?logo=springboot&logoColor=white)](https://spring.io/projects/spring-boot)
+[![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud%20Gateway-2024.0-6DB33F?logo=spring&logoColor=white)](https://spring.io/projects/spring-cloud-gateway)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-8-47A248?logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://docs.docker.com/compose/)
+[![Android](https://img.shields.io/badge/Android-Java-3DDC84?logo=android&logoColor=white)](https://developer.android.com/)
+[![k6](https://img.shields.io/badge/k6-Load%20Testing-7D64FF?logo=k6&logoColor=white)](https://k6.io/)
 
-- evcil hayvan profili olusturma
-- saglik gecmisi tutma
-- asi kayitlarini takip etme
-- ilac ve doz planlarini yonetme
-- beslenme planlarini kaydetme
-- veteriner randevularini saklama
-- hatirlatma olusturma
-- gunluk aktivite kayitlarini izleme
+#### PetCare-Tracer, evcil hayvan sahiplerinin saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek bir merkezden yonetebilmesi icin gelistirilmis cok katmanli bir takip platformudur. Proje, Ileri Java dersi kapsaminda Java tabanli backend, JavaFX admin paneli, Android istemci ve izleme/test altyapisi ile tasarlanmistir.
 
-## Kullanilan Teknolojiler
+</div>
 
-- Java 17
-- Spring Boot
-- Spring JDBC
-- PostgreSQL
-- MongoDB
-- BCrypt
-- JavaFX
-- Android Studio (Java)
-- Docker Compose
-- Prometheus
-- Grafana
-- k6
-- JUnit + Mockito
+     🏗️ Sistem Mimarisi
 
-## Sistem Mimarisi
+### Mikroservis Yapısı
+
+```mermaid
+flowchart TB
+    subgraph Clients["İstemci Katmanı"]
+        A["📱 Android\n(Java · Retrofit2)"]
+        B["🖥️ JavaFX Admin\n(Canvas API)"]
+    end
+
+    subgraph GW["🔀 API Gateway"]
+        G["Route Table\n/api/auth/** → user-service\n/api/pets/** → pet-service\n/api/appointments/** → care-service"]
+    end
+
+    subgraph MS["Mikroservisler"]
+        US["👤 user-service :8081\nAuth · Kullanıcı CRUD"]
+        PS["🐾 pet-service :8082\nHayvan · Sağlık · Aşı · İlaç · Beslenme"]
+        CS["📅 care-service :8083\nRandevu · Hatırlatma · Aktivite Logu"]
+    end
+
+    subgraph DB["Veri Katmanı"]
+        PG[("🐘 PostgreSQL :5432\n10 İlişkisel Tablo")]
+        MG[("🍃 MongoDB :27017\nAktivite Logları")]
+    end
+
+    subgraph OBS["Gözlemlenebilirlik"]
+        P["Prometheus :9090"]
+        GR["Grafana :3000"]
+    end
+
+    A --> GW
+    B --> GW
+    GW --> US
+    GW --> PS
+    GW --> CS
+    US --> PG
+    PS --> PG
+    CS --> PG
+    CS --> MG
+    P -->|"scrape 15s"| US
+    P -->|"scrape 15s"| PS
+    P -->|"scrape 15s"| CS
+    GR --> P
+```
+
+### Veritabanı Şeması
 
 ```mermaid
 flowchart LR
-    A["Android Uygulamasi"] --> B["Spring Boot API"]
-    C["JavaFX Admin Panel"] --> B
-    B --> D["PostgreSQL"]
-    B --> E["MongoDB"]
-    F["k6"] --> B
-    G["Prometheus"] --> B
-    H["Grafana"] --> G
+    subgraph PostgreSQL["🐘 PostgreSQL — JdbcTemplate"]
+        U[users] --> P[pets]
+        P --> HR[health_records]
+        P --> VR[vaccine_records]
+        P --> V[vaccines]
+        P --> MS[medication_schedules]
+        P --> M[medications]
+        P --> FP[feeding_plans]
+        P --> AP[appointments]
+        P --> R[reminders]
+    end
+    subgraph MongoDB["🍃 MongoDB — Spring Data"]
+        AL["activity_logs\n@Document"]
+    end
 ```
 
-## Tamamlanan Moduller
+---
 
-### Backend
+## 🚀 Hızlı Başlangıç
 
-- Auth
-- Users
-- Pets
-- Health Records
-- Vaccines
-- Vaccine Records
-- Medications
-- Medication Schedules
-- Feeding Plans
-- Appointments
-- Reminders
-- Activity Logs
-
-### Istemci Tarafi
-
-- JavaFX admin panel iskeleti
-- Android login ekrani
-- Android register ekrani
-- Android dashboard ekrani
-- Android pet listesi ekrani
-
-### DevOps / Test
-
-- Docker Compose kurulumu
-- Prometheus metrics toplama
-- Grafana dashboard
-- k6 smoke test
-- k6 hafif yuk testi
-- temel TDD tabanli service testleri
-
-## Proje Klasor Yapisi
-
-- `backend/petcare-backend`
-  Spring Boot backend kodlari
-- `admin-panel/petcare-admin`
-  JavaFX admin panel projesi
-- `mobil-app/PetCareMobile`
-  Android Studio mobil istemci projesi
-- `db`
-  PostgreSQL schema ve seed scriptleri
-- `monitoring`
-  Prometheus ve Grafana konfigrasyonlari
-- `tests/k6`
-  performans test scriptleri
-- `docs`
-  kurulum ve kullanim dokumanlari
-
-## Yerel Calistirma
-
-### Backend
+### 1. Sistemi Başlat
 
 ```bash
-cd backend/petcare-backend
-mvnw.cmd spring-boot:run
-```
-
-Varsayilan backend adresi:
-
-- `http://localhost:8080`
-
-### Docker ile Tum Sistemi Calistirma
-
-```bash
+# Tüm mikroservisleri + altyapıyı başlat
 docker compose up --build
 ```
 
-Bu komut asagidaki servisleri ayaga kaldirir:
+> ⏱️ **İlk build ~10-15 dakika** sürebilir — 4 ayrı Maven build yapılır.
 
-- PostgreSQL: `localhost:5433`
-- MongoDB: `localhost:27018`
-- Backend API: `http://localhost:8080`
-- Prometheus: `http://localhost:9090`
-- Grafana: `http://localhost:3000`
+### 2. Erişim Noktaları
 
-Grafana giris bilgileri:
+| Servis | URL | Bilgi |
+|--------|-----|-------|
+| 🔀 **API Gateway** | http://localhost:8080 | Tüm isteklerin giriş noktası |
+| 🔍 **Sağlık Kontrolü** | http://localhost:8080/actuator/health | `{"status":"UP"}` |
+| 📊 **Prometheus** | http://localhost:9090 | Metrik toplama |
+| 📈 **Grafana** | http://localhost:3000 | `admin` / `admin123` |
+| 👤 user-service | http://localhost:8081 | (iç — doğrudan erişim) |
+| 🐾 pet-service | http://localhost:8082 | (iç — doğrudan erişim) |
+| 📅 care-service | http://localhost:8083 | (iç — doğrudan erişim) |
 
-- kullanici: `admin`
-- sifre: `admin123`
+### 3. Test Kullanıcısı
 
-## Test ve Izleme
-
-### HTTP Istekleri
-
-- [requests.http](/C:/Users/MSI/Desktop/PetCare-Tracer/backend/petcare-backend/requests.http)
-
-### k6 Testleri
-
-```bash
-k6 run tests/k6/smoke-test.js
-k6 run tests/k6/core-load.js
+```
+E-posta : ahmet@example.com
+Şifre   : test123
 ```
 
-Docker profili ile:
+---
 
-```bash
-docker compose --profile loadtest run --rm k6 run /scripts/smoke-test.js
+## 📁 Proje Yapısı
+
+```
+PetCare-Tracer/
+│
+├── microservices/                      ← YENİ — Mikroservis Mimarisi
+│   ├── gateway/                        ← Spring Cloud Gateway (:8080)
+│   ├── user-service/                   ← Auth + Kullanıcı (:8081)
+│   ├── pet-service/                    ← Hayvan CRUD (:8082)
+│   └── care-service/                   ← Randevu + Hatırlatma + Aktivite (:8083)
+│
+├── backend/petcare-backend/            ← Monolitik referans backend (Java 17)
+│   └── src/main/java/com/petcarebackend/
+│       ├── controller/                 ← 13 REST Controller
+│       ├── service/                    ← CrudService<T>, I*Service
+│       ├── repository/                 ← JdbcTemplate + MongoRepository
+│       ├── model/                      ← Java Records
+│       ├── dto/                        ← Request / Response DTO'ları
+│       ├── exception/                  ← GlobalExceptionHandler
+│       └── util/                       ← ValidationUtils (DRY)
+│
+├── admin-panel/petcare-admin/          ← JavaFX Admin Paneli
+│   └── ui/StatusBadgeCell.java        ← Canvas + GraphicsContext custom grafik
+│
+├── mobil-app/PetCareMobile/            ← Android Uygulaması (Java)
+│   └── ui/
+│       ├── LoginActivity.java
+│       ├── RegisterActivity.java
+│       ├── DashboardActivity.java      ← Pet sayısı istatistiği
+│       ├── PetListActivity.java        ← RecyclerView + SwipeRefresh + FAB
+│       ├── PetDetailActivity.java      ← Randevu ekleme + silme
+│       └── AddPetActivity.java         ← DatePicker + Spinner + validasyon
+│
+├── db/
+│   ├── 01_schema.sql                   ← PostgreSQL şema (10 tablo)
+│   └── 02_seed.sql                     ← Örnek veriler
+│
+├── monitoring/
+│   ├── prometheus/prometheus.yml       ← 4 servis scrape config
+│   └── grafana/provisioning/           ← Otomatik dashboard provisioning
+│
+├── tests/k6/
+│   ├── smoke-test.js                   ← Sağlık kontrolü (1 VU, 30s)
+│   ├── core-load.js                    ← Yük testi (5→15 VU, 80s)
+│   └── stress-test.js                  ← Kırılma noktası (10→150 VU, 3dk)
+│
+├── docs/
+│   ├── technical-report.md
+│   ├── performance-testing.md
+│   ├── microservices.md                ← Mikroservis mimari dokümantasyonu
+│   ├── observability.md
+│   └── database-setup.md
+│
+└── docker-compose.yml                  ← 9 container tanımı
 ```
 
-### TDD / Unit Test
+---
 
-Backend testleri:
+## 🔬 Kriter Detayları
 
-```bash
-cd backend/petcare-backend
-mvnw.cmd test
+### 1. Mikroservis Mimarisi + API Gateway
+
+#### Route Tablosu
+
+| İstek Yolu | Hedef Servis | Port |
+|-----------|-------------|:----:|
+| `/api/auth/**`, `/api/users/**` | user-service | 8081 |
+| `/api/pets/**`, `/api/health-records/**`, `/api/vaccines/**`, `/api/medications/**`, `/api/feeding-plans/**` | pet-service | 8082 |
+| `/api/appointments/**`, `/api/reminders/**`, `/api/activity-logs/**` | care-service | 8083 |
+
+```yaml
+# gateway/application.yml — Spring Cloud Gateway konfigürasyonu
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: user-service
+          uri: http://user-service:8081
+          predicates: [Path=/api/auth/**, /api/users/**]
+          filters: [AddRequestHeader=X-Gateway-Source, petcare-gateway]
+        - id: pet-service
+          uri: http://pet-service:8082
+          predicates: [Path=/api/pets/**, /api/health-records/**, ...]
+        - id: care-service
+          uri: http://care-service:8083
+          predicates: [Path=/api/appointments/**, /api/reminders/**, ...]
 ```
 
-Eklenen ornek test siniflari:
+---
 
-- `AuthServiceTest`
-- `ActivityLogServiceTest`
-- `FeedingPlanServiceTest`
+### 2. API & Back-end
 
-## Android Notlari
+Spring Boot 3.5 ile geliştirilmiş RESTful API. Tüm endpoint'ler `ApiResponse<T>` sarmalayıcısıyla standart yanıt döndürür.
 
-Android Studio'da acilacak proje:
+| Endpoint | Metotlar | Açıklama |
+|----------|----------|----------|
+| `/api/auth` | POST login, register | Kimlik doğrulama |
+| `/api/users` | GET, PUT, DELETE | Kullanıcı yönetimi |
+| `/api/pets` | GET, POST, PUT, DELETE | Evcil hayvan CRUD |
+| `/api/health-records` | GET, POST, DELETE | Sağlık kayıtları |
+| `/api/vaccines` | GET, POST | Aşı kataloğu |
+| `/api/vaccine-records` | GET, POST, DELETE | Aşı uygulama kayıtları |
+| `/api/medications` | GET, POST | İlaç kataloğu |
+| `/api/medication-schedules` | GET, POST, DELETE | İlaç takvimi |
+| `/api/feeding-plans` | GET, POST, DELETE | Beslenme planları |
+| `/api/appointments` | GET, POST, DELETE | Randevular |
+| `/api/reminders` | GET, POST, DELETE | Hatırlatmalar |
+| `/api/activity-logs` | GET, POST | Aktivite logları (MongoDB) |
+| `/actuator/health`, `/actuator/prometheus` | GET | Gözlemlenebilirlik |
 
-- `mobil-app/PetCareMobile`
+---
 
-Android emulator icin backend adresi:
+### 3. Generic Yapılar
 
-- `http://10.0.2.2:8080/`
+```java
+// CrudService<Res, ID, CreateReq> — tip güvenli generic arayüz
+public interface CrudService<Res, ID, CreateReq> {
+    List<Res> findAll();
+    Res findById(ID id);
+    Res create(CreateReq request);
+    void delete(ID id);
+}
 
-Onemli not:
+// ApiResponse<T> — generic sarmalayıcı
+public record ApiResponse<T>(boolean success, String message, T data) {
+    public static <T> ApiResponse<T> success(String msg, T data) { ... }
+    public static <T> ApiResponse<T> failure(String message) { ... }
+}
 
-- `No target device found` hatasi koddan degil, emulator veya fiziksel cihaz tanimli olmamasindan kaynaklanir.
-- Bu durumda Android Studio icinde `Tools > Device Manager > Create Device` adimlariyla bir emulator olusturulmalidir.
-
-Detayli rehber:
-
-- [android-mobile.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/android-mobile.md)
-
-## JavaFX Admin Panel
-
-Calistirma:
-
-```bash
-backend/petcare-backend/mvnw.cmd -f admin-panel/petcare-admin/pom.xml javafx:run
+// StatusBadgeCell<T> — JavaFX generic TableCell
+public class StatusBadgeCell<T> extends TableCell<T, String> {
+    // Canvas + GraphicsContext ile özel grafik çizimi
+}
 ```
 
-Detayli not:
-
-- [javafx-admin-panel.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/javafx-admin-panel.md)
-
-## Dokumantasyon
-
-- [database-setup.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/database-setup.md)
-- [performance-testing.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/performance-testing.md)
-- [observability.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/observability.md)
-- [screenshots-guide.md](/C:/Users/MSI/Desktop/PetCare-Tracer/docs/screenshots-guide.md)
-
-## Ekran Goruntuleri
-
-Asagidaki ekran goruntulerinin README veya rapora eklenmesi onerilir:
-
-- Giris ekrani
-- Kayit ekrani
-- Dashboard
-- Pet listesi
-- JavaFX admin panel
-- Prometheus targets
-- Grafana dashboard
-
-
-=======
-PetCare-Tracer
-Evcil hayvan sahiplerinin; saglik, asi, ilac, beslenme, randevu, hatirlatma ve aktivite verilerini tek merkezden yonetebildigi ileri Java dersi projesi.
-
-Proje Yapisi
-
-backend/petcare-backend
-
-Spring Boot + JDBC + MongoDB backend
-
-admin-panel/petcare-admin
-
-JavaFX admin panel
-
-db
-
-PostgreSQL schema ve seed scriptleri
-
-docs
-
-kurulum ve performans test dokumani
-
-tests/k6
-
-performans testi scriptleri
-
-mobil-app
-
-Android istemci icin ayrilan alan
-
-Login, register, dashboard ve pet listeleme iskeleti hazir
-
-
-Kullanilan Teknolojiler
-
-Java 17
-
-Spring Boot
-
-Spring JDBC
-
-PostgreSQL
-
-MongoDB
-
-BCrypt
-
-Docker Compose
-
-k6
-
-JavaFX
-
-Prometheus
-
-Grafana
-
-
-Tamamlanan Backend Modulleri
-
-auth
-
-users
-
-pets
-
-health records
-
-vaccines
-
-vaccine records
-
-medications
-
-medication schedules
-
-feeding plans
-
-appointments
-
-reminders
-
-activity logs
-
-
-Yerel Calistirma
-PostgreSQL ve MongoDB servislerini ac.
-petcare_tracker veritabanini db/01_schema.sql ve db/02_seed.sql ile hazirla.
-Backend klasorune gir:
-
-bash
-
-
-
-cd backend/petcare-backend
-
-
-
-Uygulamayi baslat:
-
-bash
-
-
-
-mvnw.cmd spring-boot:run
-
-
-
-Docker Ile Calistirma
-Kok klasorde:
-
-bash
-
-
-
+---
+
+### 4. Custom GUI
+
+#### JavaFX Admin Panel — Canvas Custom Graphics
+
+```java
+// StatusBadgeCell<T> — standart bileşen değil, Canvas ile özel çizim
+private void drawBadge(String status) {
+    GraphicsContext gc = canvas.getGraphicsContext2D();
+    gc.setFill(resolveBgColor(status));
+    gc.fillRoundRect(0, 0, BADGE_WIDTH, BADGE_HEIGHT, 26, 26);  // yuvarlak badge
+    gc.setFont(Font.font("System", FontWeight.BOLD, 11.5));
+    gc.setTextAlign(TextAlignment.CENTER);
+    gc.setTextBaseline(VPos.CENTER);
+    gc.fillText(status, BADGE_WIDTH / 2.0, BADGE_HEIGHT / 2.0);
+}
+```
+
+#### Android Mobil Uygulama
+
+| Ekran | Sınıf | Özellik |
+|-------|-------|---------|
+| Giriş | `LoginActivity` | Retrofit2, session yönetimi |
+| Kayıt | `RegisterActivity` | Form validasyonu |
+| Dashboard | `DashboardActivity` | Pet sayısı istatistiği, API'den dinamik |
+| Pet Listesi | `PetListActivity` | RecyclerView + SwipeRefresh + FAB |
+| Pet Detayı | `PetDetailActivity` | Randevu listesi, randevu ekleme, silme |
+| Hayvan Ekle | `AddPetActivity` | DatePickerDialog, Spinner, form validasyonu |
+
+---
+
+### 5. JDBC & NoSQL
+
+- **PostgreSQL + JdbcTemplate:** 10 ilişkisel tablo, FK bütünlüğü, ACID garantisi
+- **MongoDB + Spring Data MongoRepository:** `ActivityLog` dökümanları, şemasız esnek yapı
+
+```java
+// PostgreSQL — JdbcTemplate (user-service, pet-service, care-service)
+return jdbc.query("SELECT * FROM pets WHERE user_id=?", this::mapRow, userId);
+
+// MongoDB — MongoRepository (care-service)
+public interface ActivityLogRepository extends MongoRepository<ActivityLog, String> {
+    List<ActivityLog> findByPetId(Long petId);
+}
+```
+
+---
+
+### 6. SOLID & OOP
+
+| Prensip | Uygulama | Dosya |
+|---------|----------|-------|
+| **S** — Single Responsibility | Her servis tek varlık yönetir | `PetService`, `UserService`... |
+| **O** — Open/Closed | `CrudService<T>` değişmeden genişletilebilir | `CrudService.java` |
+| **L** — Liskov Substitution | `PetServiceImpl implements IPetService` | `IPetService.java` |
+| **I** — Interface Segregation | CRUD + domain özel metotlar ayrı | `IPetService`, `IUserService`... |
+| **D** — Dependency Inversion | Controller → Interface | `PetController → IPetService` |
+| **DRY** | Ortak validasyon tek yerde | `ValidationUtils.java` |
+
+---
+
+### 7. Hata Yönetimi
+
+```java
+@RestControllerAdvice
+public class GlobalExceptionHandler {
+    @ExceptionHandler(NotFoundException.class)    // → HTTP 404
+    @ExceptionHandler(BadRequestException.class)  // → HTTP 400
+    @ExceptionHandler(DataAccessException.class)  // → HTTP 500
+    @ExceptionHandler(Exception.class)            // → HTTP 500 (fallback)
+}
+```
+
+Tüm hatalar `ApiResponse.failure(message)` formatında döner:
+```json
+{ "success": false, "message": "Pet not found: 99", "data": null }
+```
+
+---
+
+### 8. Performans Testleri
+
+k6 ile 3 seviyeli performans testi uygulanmıştır. Testler `tests/k6/` dizininde bulunur.
+
+#### Test Seviyeleri
+
+| Test | Dosya | VU Profili | Süre | Eşikler |
+|------|-------|-----------|------|---------|
+| 🟢 **Smoke** | `smoke-test.js` | 1 VU sabit | ~30s | hata < %1 · p95 < 1500ms |
+| 🟡 **Load** | `core-load.js` | 5 → 15 → 0 VU | ~80s | hata < %2 · p95 < 2000ms |
+| 🔴 **Stress** | `stress-test.js` | 10 → 150 → 0 VU | ~3dk | hata < %10 · p95 < 3000ms |
+
+#### Çalıştırma Komutları
+
+```bash
+# Önce Docker'ı başlat
 docker compose up --build
 
+# Ayrı bir terminalde testleri çalıştır
+k6 run tests/k6/smoke-test.js    # ~30 saniye
+k6 run tests/k6/core-load.js     # ~80 saniye
+k6 run tests/k6/stress-test.js   # ~3 dakika
+```
 
+#### Test Sonuçları
 
-Bu kurulum su servisleri ayaga kaldirir:
-
-
-PostgreSQL: localhost:5433
-
-MongoDB: localhost:27018
-
-Backend API: http://localhost:8080
-
-Prometheus: http://localhost:9090
-
-Grafana: http://localhost:3000
-
-
-Temel Testler
-Hazir HTTP istekleri:
-
-
-requests.http
-
-
-Performans testleri:
-
-bash
+> 📸 **Smoke Test Sonucu**
+>
+>![alt text](<Ekran görüntüsü 2026-05-31 200009.png>)
 
 
 
-k6 run tests/k6/smoke-test.js
-k6 run tests/k6/core-load.js
+---
+
+> 📸 **Load Test Sonucu**
+>
+>![alt text](<Ekran görüntüsü 2026-05-31 200216.png>)
 
 
+---
 
-Monitoring notlari:
-
-
-observability.md
-
-
-JavaFX Admin Panel
-bash
+> 📸 **Stress Test Sonucu**
+>
+>![alt text](<Ekran görüntüsü 2026-05-31 200608.png>)
 
 
+---
 
-backend/petcare-backend/mvnw.cmd -f admin-panel/petcare-admin/pom.xml javafx:run
+> 📸 **Grafana Dashboard — Yük Altında**
+>
+>![alt text](<Ekran görüntüsü 2026-05-15 202656.png>)
 
+---
 
+### 9. TDD — Test Driven Development
 
-Detayli notlar:
+**55 Test, 9 Sınıf:**
 
+| Test Sınıfı | Test Sayısı |
+|-------------|:-----------:|
+| `PetServiceTest` | 9 |
+| `VaccineServiceTest` | 8 |
+| `ReminderServiceTest` | 9 |
+| `UserServiceTest` | 7 |
+| `AppointmentServiceTest` | 7 |
+| `ValidationUtilsTest` | 6 |
+| `ActivityLogServiceTest` | 2 |
+| `FeedingPlanServiceTest` | 2 |
+| `AuthServiceTest` | 2 |
+| **TOPLAM** | **52** |
 
-javafx-admin-panel.md
+```bash
+cd backend/petcare-backend
+.\mvnw.cmd test
+# Beklenen: Tests run: 55, Failures: 0, Errors: 0, Skipped: 0
+```
 
+> 📸 **JUnit Test Sonucu**
+>
+> ![alt text](image.png)
+>
 
-Android Mobile
-Android Studio ile acilacak proje:
+---
 
+### 10. Dockerize Sistem
 
-mobil-app/PetCareMobile
+```yaml
+# docker-compose.yml — 9 container, tek komut
+services:
+  postgres:       # healthcheck'li PostgreSQL 17
+  mongo:          # healthcheck'li MongoDB 8
+  user-service:   # Spring Boot :8081 (postgres hazır olunca)
+  pet-service:    # Spring Boot :8082 (postgres hazır olunca)
+  care-service:   # Spring Boot :8083 (postgres + mongo hazır olunca)
+  gateway:        # Spring Cloud Gateway :8080 (tüm servisler hazır olunca)
+  prometheus:     # Micrometer metrik toplama
+  grafana:        # Dashboard (provisioning otomatik)
+  k6:             # Yük testi container'ı (--profile loadtest)
+```
 
+```bash
+# Sistemi başlat
+docker compose up --build
 
-Detayli notlar:
+# Çalışan container'ları görüntüle
+docker compose ps
 
+# Yük testini Docker ile çalıştır (k6 yüklü değilse)
+docker compose --profile loadtest run --rm k6 run /scripts/stress-test.js
+```
 
-android-mobile.md
+---
 
-screenshots-guide.md
+## 🧪 Çalıştırma Rehberi
 
+### JUnit Testleri
 
-Mimari Ozeti
+```bash
+cd backend/petcare-backend
+.\mvnw.cmd test
+```
 
-#mermaid-_r_16v_{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;fill:rgb(255, 255, 255);}@keyframes edge-animation-frame{from{stroke-dashoffset:0;}}@keyframes dash{to{stroke-dashoffset:0;}}#mermaid-_r_16v_ .edge-animation-slow{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 50s linear infinite;stroke-linecap:round;}#mermaid-_r_16v_ .edge-animation-fast{stroke-dasharray:9,5!important;stroke-dashoffset:900;animation:dash 20s linear infinite;stroke-linecap:round;}#mermaid-_r_16v_ .error-icon{fill:rgba(255, 255, 255, 0.082);}#mermaid-_r_16v_ .error-text{fill:rgba(255, 255, 255, 0.498);stroke:rgba(255, 255, 255, 0.498);}#mermaid-_r_16v_ .edge-thickness-normal{stroke-width:1px;}#mermaid-_r_16v_ .edge-thickness-thick{stroke-width:3.5px;}#mermaid-_r_16v_ .edge-pattern-solid{stroke-dasharray:0;}#mermaid-_r_16v_ .edge-thickness-invisible{stroke-width:0;fill:none;}#mermaid-_r_16v_ .edge-pattern-dashed{stroke-dasharray:3;}#mermaid-_r_16v_ .edge-pattern-dotted{stroke-dasharray:2;}#mermaid-_r_16v_ .marker{fill:rgba(255, 255, 255, 0.498);stroke:rgba(255, 255, 255, 0.498);}#mermaid-_r_16v_ .marker.cross{stroke:rgba(255, 255, 255, 0.498);}#mermaid-_r_16v_ svg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:16px;}#mermaid-_r_16v_ p{margin:0;}#mermaid-_r_16v_ .label{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:rgb(255, 255, 255);}#mermaid-_r_16v_ .cluster-label text{fill:rgb(255, 255, 255);}#mermaid-_r_16v_ .cluster-label span{color:rgb(255, 255, 255);}#mermaid-_r_16v_ .cluster-label span p{background-color:transparent;}#mermaid-_r_16v_ .label text,#mermaid-_r_16v_ span{fill:rgb(255, 255, 255);color:rgb(255, 255, 255);}#mermaid-_r_16v_ .node rect,#mermaid-_r_16v_ .node circle,#mermaid-_r_16v_ .node ellipse,#mermaid-_r_16v_ .node polygon,#mermaid-_r_16v_ .node path{fill:rgba(54, 54, 54, 0.96);stroke:rgba(255, 255, 255, 0.082);stroke-width:1px;}#mermaid-_r_16v_ .rough-node .label text,#mermaid-_r_16v_ .node .label text,#mermaid-_r_16v_ .image-shape .label,#mermaid-_r_16v_ .icon-shape .label{text-anchor:middle;}#mermaid-_r_16v_ .node .katex path{fill:#000;stroke:#000;stroke-width:1px;}#mermaid-_r_16v_ .rough-node .label,#mermaid-_r_16v_ .node .label,#mermaid-_r_16v_ .image-shape .label,#mermaid-_r_16v_ .icon-shape .label{text-align:center;}#mermaid-_r_16v_ .node.clickable{cursor:pointer;}#mermaid-_r_16v_ .root .anchor path{fill:rgba(255, 255, 255, 0.498)!important;stroke-width:0;stroke:rgba(255, 255, 255, 0.498);}#mermaid-_r_16v_ .arrowheadPath{fill:#e7e7e7;}#mermaid-_r_16v_ .edgePath .path{stroke:rgba(255, 255, 255, 0.498);stroke-width:2.0px;}#mermaid-_r_16v_ .flowchart-link{stroke:rgba(255, 255, 255, 0.498);fill:none;}#mermaid-_r_16v_ .edgeLabel{background-color:rgb(40, 40, 40);text-align:center;}#mermaid-_r_16v_ .edgeLabel p{background-color:rgb(40, 40, 40);}#mermaid-_r_16v_ .edgeLabel rect{opacity:0.5;background-color:rgb(40, 40, 40);fill:rgb(40, 40, 40);}#mermaid-_r_16v_ .labelBkg{background-color:rgba(40, 40, 40, 0.5);}#mermaid-_r_16v_ .cluster rect{fill:rgba(255, 255, 255, 0.03);stroke:rgba(255, 255, 255, 0.082);stroke-width:1px;}#mermaid-_r_16v_ .cluster text{fill:rgb(255, 255, 255);}#mermaid-_r_16v_ .cluster span{color:rgb(255, 255, 255);}#mermaid-_r_16v_ div.mermaidTooltip{position:absolute;text-align:center;max-width:200px;padding:2px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:12px;background:rgba(255, 255, 255, 0.082);border:1px solid rgba(255, 255, 255, 0.082);border-radius:2px;pointer-events:none;z-index:100;}#mermaid-_r_16v_ .flowchartTitleText{text-anchor:middle;font-size:18px;fill:rgb(255, 255, 255);}#mermaid-_r_16v_ rect.text{fill:none;stroke-width:0;}#mermaid-_r_16v_ .icon-shape,#mermaid-_r_16v_ .image-shape{background-color:rgb(40, 40, 40);text-align:center;}#mermaid-_r_16v_ .icon-shape p,#mermaid-_r_16v_ .image-shape p{background-color:rgb(40, 40, 40);padding:2px;}#mermaid-_r_16v_ .icon-shape rect,#mermaid-_r_16v_ .image-shape rect{opacity:0.5;background-color:rgb(40, 40, 40);fill:rgb(40, 40, 40);}#mermaid-_r_16v_ .label-icon{display:inline-block;height:1em;overflow:visible;vertical-align:-0.125em;}#mermaid-_r_16v_ .node .label-icon path{fill:currentColor;stroke:revert;stroke-width:revert;}#mermaid-_r_16v_ :root{--mermaid-font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}Android / JavaFX ClientSpring Boot APIPostgreSQLMongoDB
+### k6 Performans Testleri
 
+```bash
+# Docker ayakta olmalı
+k6 run tests/k6/smoke-test.js     # Smoke  — 1 VU,  ~30s
+k6 run tests/k6/core-load.js      # Load   — 15 VU, ~80s
+k6 run tests/k6/stress-test.js    # Stress — 150 VU, ~3dk
+```
 
+### JavaFX Admin Paneli
 
-Ekran Goruntuleri
+```bash
+.\admin-panel\petcare-admin\mvnw.cmd -f admin-panel\petcare-admin\pom.xml javafx:run
+```
 
-Giris ekrani: ekran goruntusu
+### Android Uygulaması
 
-Kayit ekrani: ekran goruntusu
+```
+1. Android Studio → mobil-app/PetCareMobile
+2. Emülatör başlat
+3. API URL: http://10.0.2.2:8080  (emülatör → localhost Gateway)
+4. Giriş: ahmet@example.com / test123
+```
 
-Dashboard: ekran goruntusu
+---
 
-Pet listesi: ekran goruntusu
+## 📊 Gözlemlenebilirlik
 
-JavaFX admin panel: ekran goruntusu
+| Araç | URL | Amaç |
+|------|-----|------|
+| Prometheus | http://localhost:9090 | Metrik toplama (15s scrape) |
+| Grafana | http://localhost:3000 | HTTP istek oranı, p95 latency, JVM heap |
+| Gateway Health | http://localhost:8080/actuator/health | Gateway sağlık |
+| User Health | http://localhost:8081/actuator/health | user-service sağlık |
+| Pet Health | http://localhost:8082/actuator/health | pet-service sağlık |
+| Care Health | http://localhost:8083/actuator/health | care-service sağlık |
+| Prometheus Metrics | http://localhost:8081/actuator/prometheus | Ham Micrometer metrikleri |
 
-Prometheus target ekrani: ekran goruntusu
+---
 
-Grafana dashboard: ekran goruntusu
+## 🛠️ Teknoloji Yığını
 
+| Katman | Teknoloji |
+|--------|-----------|
+| **Mikroservis Backend** | Java 17 · Spring Boot 3.5 · Spring Cloud Gateway 2024.0 |
+| **Veritabanı** | PostgreSQL 17 (JdbcTemplate) · MongoDB 8 (Spring Data) |
+| **Admin GUI** | JavaFX 21 · Canvas API · GraphicsContext |
+| **Mobil** | Android (Java) · Retrofit2 · Material Design 3 |
+| **Altyapı** | Docker · Docker Compose · Maven Wrapper |
+| **İzleme** | Prometheus · Grafana · Micrometer |
+| **Test** | JUnit 5 · Mockito · k6 |
+| **Güvenlik** | BCrypt (Spring Security) |
 
-Sonraki Asama
+---
 
-Android pet detay, saglik ve hatirlatma ekranlari
+## 📚 Dokümantasyon
 
-ekran goruntuleri ve sunum raporu
->>>>>>> d3edc1b1b1dfc319853159826e2d4e6332f29417
+| Doküman | İçerik |
+|---------|--------|
+| [docs/technical-report.md](docs/technical-report.md) | Mermaid diyagramları ile teknik rapor |
+| [docs/microservices.md](docs/microservices.md) | Mikroservis mimarisi — route tablosu, servis detayları |
+| [docs/performance-testing.md](docs/performance-testing.md) | k6 test sonuçları ve analiz |
+| [docs/observability.md](docs/observability.md) | Prometheus + Grafana kurulumu |
+| [docs/database-setup.md](docs/database-setup.md) | Veritabanı şema açıklaması |

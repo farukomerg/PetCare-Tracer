@@ -1,13 +1,18 @@
 package com.petcare.mobile.ui;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.petcare.mobile.R;
 import com.petcare.mobile.model.ApiResponse;
 import com.petcare.mobile.model.PetResponse;
@@ -28,6 +33,18 @@ public class PetListActivity extends AppCompatActivity {
     private TextView emptyStateText;
     private SessionManager sessionManager;
 
+    /** AddPetActivity'den dönen sonucu yakalar; başarılıysa listeyi yeniler. */
+    private final ActivityResultLauncher<Intent> addPetLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> { if (result.getResultCode() == Activity.RESULT_OK) fetchPets(); }
+    );
+
+    /** PetDetailActivity'den dönen sonucu yakalar (silme sonrası yenile). */
+    private final ActivityResultLauncher<Intent> detailLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> { if (result.getResultCode() == Activity.RESULT_OK) fetchPets(); }
+    );
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +55,17 @@ public class PetListActivity extends AppCompatActivity {
         emptyStateText = findViewById(R.id.emptyStateText);
         RecyclerView recyclerView = findViewById(R.id.petRecyclerView);
 
-        petAdapter = new PetAdapter(petItems);
+        petAdapter = new PetAdapter(petItems, detailLauncher);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(petAdapter);
 
         swipeRefreshLayout.setOnRefreshListener(this::fetchPets);
+
+        // FAB — Hayvan Ekle
+        FloatingActionButton addPetFab = findViewById(R.id.addPetFab);
+        addPetFab.setOnClickListener(v ->
+                addPetLauncher.launch(new Intent(this, AddPetActivity.class))
+        );
 
         fetchPets();
     }

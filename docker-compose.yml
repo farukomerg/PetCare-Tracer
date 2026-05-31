@@ -1,4 +1,5 @@
 services:
+  # ─────────────── Veritabanları ───────────────
   postgres:
     image: postgres:17
     container_name: petcare-postgres
@@ -31,11 +32,56 @@ services:
       timeout: 5s
       retries: 10
 
-  backend:
+  # ─────────────── Mikroservisler ───────────────
+  user-service:
     build:
-      context: ./backend/petcare-backend
+      context: ./microservices/user-service
       dockerfile: Dockerfile
-    container_name: petcare-backend
+    container_name: petcare-user-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/petcare_tracker
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  pet-service:
+    build:
+      context: ./microservices/pet-service
+      dockerfile: Dockerfile
+    container_name: petcare-pet-service
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/petcare_tracker
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      SERVER_PORT: 8082
+    ports:
+      - "8082:8082"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8082/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  care-service:
+    build:
+      context: ./microservices/care-service
+      dockerfile: Dockerfile
+    container_name: petcare-care-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,15 +92,63 @@ services:
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
       SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/petcare_tracker_logs
+      SERVER_PORT: 8083
+    ports:
+      - "8083:8083"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8083/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 8
+      start_period: 30s
+
+  # ─────────────── API Gateway ───────────────
+  gateway:
+    build:
+      context: ./microservices/gateway
+      dockerfile: Dockerfile
+    container_name: petcare-gateway
+    depends_on:
+      user-service:
+        condition: service_healthy
+      pet-service:
+        condition: service_healthy
+      care-service:
+        condition: service_healthy
+    environment:
       SERVER_PORT: 8080
     ports:
       - "8080:8080"
 
+  # ─────────────── (Opsiyonel) Monolitik Backend ───────────────
+  # Not: Monolitik backend artık devre dışı — gateway üzerinden mikroservisler kullanılıyor.
+  # Yedek olarak çalıştırmak için aşağıdaki bloğu uncomment edin ve gateway'i kapatın.
+  #
+  # backend:
+  #   build:
+  #     context: ./backend/petcare-backend
+  #     dockerfile: Dockerfile
+  #   container_name: petcare-backend
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     mongo:
+  #       condition: service_healthy
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/petcare_tracker
+  #     SPRING_DATASOURCE_USERNAME: postgres
+  #     SPRING_DATASOURCE_PASSWORD: postgres
+  #     SPRING_DATA_MONGODB_URI: mongodb://mongo:27017/petcare_tracker_logs
+  #     SERVER_PORT: 8080
+  #   ports:
+  #     - "8080:8080"
+
+  # ─────────────── İzleme ───────────────
   prometheus:
     image: prom/prometheus:v2.54.1
     container_name: petcare-prometheus
     depends_on:
-      - backend
+      - gateway
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
     ports:
@@ -81,9 +175,9 @@ services:
     profiles:
       - loadtest
     depends_on:
-      - backend
+      - gateway
     environment:
-      BASE_URL: http://backend:8080
+      BASE_URL: http://gateway:8080
     volumes:
       - ./tests/k6:/scripts:ro
     entrypoint: ["k6"]

@@ -1,21 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">PetCare Mobile</string>
+
+    <!-- Login -->
     <string name="login_subtitle">Evcil hayvanlarin tum kayitlarini tek merkezden yonet.</string>
     <string name="email_hint">E-posta</string>
     <string name="password_hint">Sifre</string>
     <string name="login_button">Giris Yap</string>
     <string name="register_link">Hesabin yok mu? Kayit ol</string>
+
+    <!-- Register -->
     <string name="register_title">Yeni hesap olustur</string>
     <string name="full_name_hint">Ad Soyad</string>
     <string name="phone_hint">Telefon</string>
     <string name="register_button">Kaydi Tamamla</string>
-    <string name="welcome_user">Hos geldin, %1$s</string>
-    <string name="dashboard_title">Bugunku Kontrol Merkezi</string>
-    <string name="dashboard_subtitle">Pet listene, saglik verilerine ve takiplere buradan ulasabilirsin.</string>
-    <string name="view_pets_button">Evcil Hayvanlarimi Gor</string>
+
+    <!-- Dashboard -->
+    <string name="welcome_user">Hos geldin, %1$s 👋</string>
+    <string name="dashboard_title">Kontrol Merkezi</string>
+    <string name="dashboard_subtitle">Pet listene, randevulara ve takiplere buradan ulasabilirsin.</string>
+    <string name="view_pets_button">🐾  Evcil Hayvanlarim</string>
     <string name="logout_button">Cikis Yap</string>
+    <string name="dashboard_quick_tip">Bir hayvana tiklayarak randevu ekleyebilirsin.</string>
+
+    <!-- Pet List -->
     <string name="pet_list_title">Evcil Hayvanlarim</string>
     <string name="pet_list_subtitle">Listeyi yenilemek icin asagi cek.</string>
-    <string name="no_pets_text">Bu kullaniciya ait pet kaydi bulunamadi.</string>
+    <string name="no_pets_text">Henuz hic hayvan eklenmemis.\nSag alttaki + butonuna tiklayarak ekleyebilirsin.</string>
+
+    <!-- Pet Detail -->
+    <string name="pet_detail_title">Hayvan Detayi</string>
+    <string name="appointments_section">Randevular</string>
+    <string name="no_appointments_text">Henuz randevu eklenmemis.</string>
+    <string name="add_appointment_button">+ Ekle</string>
+    <string name="delete_pet_button">🗑  Hayvani Sil</string>
+    <string name="delete_pet_confirm_title">Hayvani Sil</string>
+    <string name="delete_pet_confirm_msg">Bu hayvan ve tum verileri silinecek. Emin misiniz?</string>
+    <string name="pet_deleted_msg">Hayvan silindi.</string>
+
+    <!-- Add Appointment Dialog -->
+    <string name="add_appointment_title">Randevu Ekle</string>
+    <string name="vet_name_hint">Veteriner Adi *</string>
+    <string name="clinic_hint">Klinik / Hastane</string>
+    <string name="appointment_datetime_hint">Tarih ve Saat *</string>
+    <string name="appointment_note_hint">Not (opsiyonel)</string>
+    <string name="appointment_added_msg">Randevu eklendi.</string>
+
+    <!-- Add Pet -->
+    <string name="add_pet_title">Yeni Hayvan Ekle</string>
+    <string name="add_pet_fab_desc">Hayvan Ekle</string>
+    <string name="section_required">Zorunlu Bilgiler</string>
+    <string name="section_optional">Ek Bilgiler (Opsiyonel)</string>
+    <string name="pet_name_hint">Hayvan Adi *</string>
+    <string name="species_hint">Tur (Kedi, Kopek...) *</string>
+    <string name="breed_hint">Irk</string>
+    <string name="gender_label">Cinsiyet</string>
+    <string name="birth_date_hint">Dogum Tarihi</string>
+    <string name="weight_hint">Mevcut Kilo (kg)</string>
+    <string name="notes_hint">Notlar</string>
+    <string name="save_pet_button">Hayvan Kaydet</string>
+    <string name="saving_pet_button">Kaydediliyor…</string>
+    <string name="pet_saved_success">%1$s basariyla kaydedildi!</string>
+
+    <!-- Errors / Generic -->
+    <string name="connection_error">Baglanti hatasi: %1$s</string>
+    <string name="error_pet_name_required">Hayvan adi zorunludur.</string>
+    <string name="error_species_required">Tur bilgisi zorunludur.</string>
+    <string name="error_invalid_weight">Gecerli bir kilo degeri girin.</string>
+    <string name="error_vet_required">Veteriner adi ve tarih zorunludur.</string>
 </resources>
