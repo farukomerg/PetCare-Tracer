@@ -8,5 +8,6 @@ public record LoginResponse(
         String email,
         String phone,
         Boolean isActive,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        String userRole
 ) {}

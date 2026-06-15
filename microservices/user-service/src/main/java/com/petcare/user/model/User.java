@@ -9,5 +9,6 @@ public record User(
         String passwordHash,
         String phone,
         LocalDateTime createdAt,
-        Boolean isActive
+        Boolean isActive,
+        String userRole
 ) {}

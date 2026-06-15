@@ -4,6 +4,7 @@ CREATE TABLE users (
     email VARCHAR(120) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20),
+    user_role VARCHAR(20) NOT NULL DEFAULT 'USER',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN NOT NULL DEFAULT TRUE
 );
@@ -102,6 +103,7 @@ CREATE TABLE feeding_plans (
 CREATE TABLE appointments (
     appointment_id BIGSERIAL PRIMARY KEY,
     pet_id BIGINT NOT NULL,
+    vet_id BIGINT NOT NULL,
     vet_name VARCHAR(100) NOT NULL,
     clinic_name VARCHAR(120),
     appointment_time TIMESTAMP NOT NULL,
@@ -110,7 +112,10 @@ CREATE TABLE appointments (
     note TEXT,
     CONSTRAINT fk_appointment_pet
         FOREIGN KEY (pet_id) REFERENCES pets(pet_id)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+    CONSTRAINT fk_appointment_vet
+        FOREIGN KEY (vet_id) REFERENCES users(user_id)
+        ON DELETE RESTRICT
 );
 
 CREATE TABLE reminders (

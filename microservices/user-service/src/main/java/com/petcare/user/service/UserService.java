@@ -24,6 +24,10 @@ public class UserService {
         return userRepository.findAll().stream().map(this::toResponse).toList();
     }
 
+    public List<UserResponse> findByRole(String role) {
+        return userRepository.findByRole(role).stream().map(this::toResponse).toList();
+    }
+
     public UserResponse findById(Long id) {
         return userRepository.findById(id).map(this::toResponse)
                 .orElseThrow(() -> new NotFoundException("User not found: " + id));
@@ -52,7 +56,7 @@ public class UserService {
     }
 
     private UserResponse toResponse(User u) {
-        return new UserResponse(u.userId(), u.fullName(), u.email(), u.phone(), u.isActive(), u.createdAt());
+        return new UserResponse(u.userId(), u.fullName(), u.email(), u.phone(), u.isActive(), u.createdAt(), u.userRole());
     }
 
     private boolean isBlank(String s) { return s == null || s.isBlank(); }

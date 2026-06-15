@@ -15,6 +15,10 @@ public class ReminderService {
 
     public ReminderService(ReminderRepository repo) { this.repo = repo; }
 
+    public List<ReminderResponse> findAll() {
+        return repo.findAll().stream().map(this::toResp).toList();
+    }
+
     public List<ReminderResponse> findByPetId(Long petId) {
         return repo.findByPetId(petId).stream().map(this::toResp).toList();
     }

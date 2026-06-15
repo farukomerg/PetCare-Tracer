@@ -360,31 +360,37 @@ k6 run tests/k6/stress-test.js   # ~3 dakika
 
 #### Test Sonuçları
 
-> 📸 **Smoke Test Sonucu**
+Aşağıdaki alanlara, sistemin k6 ile yapılan performans testlerinin terminal çıktılarını (ekran görüntülerini) ekleyebilirsiniz. Testler sırasıyla temel sağlık (smoke), beklenen yük (load) ve kırılma noktası (stress) senaryolarını test etmektedir.
+
+> 📸 **1. Smoke Test Sonucu** (`k6 run tests/k6/smoke-test.js`)
 >
->![alt text](<Ekran görüntüsü 2026-05-31 200009.png>)
-
-
+> *(Buraya Smoke testinin CLI ekran görüntüsünü ekleyin)*
+> 
+> `<!-- Örnek Kullanım: ![Smoke Test](docs/images/smoke-test.png) -->`
 
 ---
 
-> 📸 **Load Test Sonucu**
+> 📸 **2. Core Load Test Sonucu** (`k6 run tests/k6/core-load.js`)
 >
->![alt text](<Ekran görüntüsü 2026-05-31 200216.png>)
-
+> *(Buraya Load testinin CLI ekran görüntüsünü ekleyin)*
+>
+> `<!-- Örnek Kullanım: ![Load Test](docs/images/core-load.png) -->`
 
 ---
 
-> 📸 **Stress Test Sonucu**
+> 📸 **3. Stress Test Sonucu** (`k6 run tests/k6/stress-test.js`)
 >
->![alt text](<Ekran görüntüsü 2026-05-31 200608.png>)
-
+> *(Buraya Stress testinin CLI ekran görüntüsünü ekleyin)*
+>
+> `<!-- Örnek Kullanım: ![Stress Test](docs/images/stress-test.png) -->`
 
 ---
 
-> 📸 **Grafana Dashboard — Yük Altında**
+> 📸 **4. Grafana Dashboard — Yük Altında** (Opsiyonel)
 >
->![alt text](<Ekran görüntüsü 2026-05-15 202656.png>)
+> *(Testler çalışırken Grafana üzerinden alınan p95 latency ve HTTP Request metriklerinin ekran görüntüsünü ekleyebilirsiniz)*
+>
+> `<!-- Örnek Kullanım: ![Grafana](docs/images/grafana-load.png) -->`
 
 ---
 

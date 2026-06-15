@@ -3,6 +3,7 @@ package com.petcare.mobile.model;
 public class AppointmentResponse {
     private Long appointmentId;
     private Long petId;
+    private Long vetId;
     private String vetName;
     private String clinicName;
     private String appointmentTime;
@@ -11,6 +12,7 @@ public class AppointmentResponse {
 
     public Long getAppointmentId() { return appointmentId; }
     public Long getPetId() { return petId; }
+    public Long getVetId() { return vetId; }
     public String getVetName() { return vetName; }
     public String getClinicName() { return clinicName; }
     public String getAppointmentTime() { return appointmentTime; }

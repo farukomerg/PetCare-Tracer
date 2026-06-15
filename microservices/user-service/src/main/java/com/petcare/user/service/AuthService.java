@@ -32,7 +32,7 @@ public class AuthService {
         if (!user.isActive()) throw new BadRequestException("User account is inactive.");
         if (!passwordEncoder.matches(req.password().trim(), user.passwordHash()))
             throw new BadRequestException("Invalid email or password.");
-        return new LoginResponse(user.userId(), user.fullName(), user.email(), user.phone(), user.isActive(), user.createdAt());
+        return new LoginResponse(user.userId(), user.fullName(), user.email(), user.phone(), user.isActive(), user.createdAt(), user.userRole());
     }
 
     private boolean isBlank(String s) { return s == null || s.isBlank(); }

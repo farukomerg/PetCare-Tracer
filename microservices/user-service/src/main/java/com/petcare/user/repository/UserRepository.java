@@ -28,12 +28,13 @@ public class UserRepository {
                 rs.getString("password_hash"),
                 rs.getString("phone"),
                 rs.getTimestamp("created_at").toLocalDateTime(),
-                rs.getBoolean("is_active")
+                rs.getBoolean("is_active"),
+                rs.getString("user_role")
         );
     }
 
     private static final String SELECT_ALL =
-            "SELECT user_id, full_name, email, password_hash, phone, created_at, is_active FROM users";
+            "SELECT user_id, full_name, email, password_hash, phone, created_at, is_active, user_role FROM users";
 
     public List<User> findAll() {
         return jdbc.query(SELECT_ALL + " ORDER BY user_id", this::mapRow);
@@ -47,16 +48,22 @@ public class UserRepository {
         return jdbc.query(SELECT_ALL + " WHERE email = ?", this::mapRow, email).stream().findFirst();
     }
 
+    public List<User> findByRole(String role) {
+        return jdbc.query(SELECT_ALL + " WHERE user_role = ? ORDER BY user_id", this::mapRow, role);
+    }
+
     public Long save(CreateUserRequest req, String passwordHash) {
         KeyHolder kh = new GeneratedKeyHolder();
+        String role = (req.userRole() != null && req.userRole().equals("VET")) ? "VET" : "USER";
         jdbc.update(con -> {
             PreparedStatement ps = con.prepareStatement(
-                    "INSERT INTO users(full_name, email, password_hash, phone) VALUES(?,?,?,?)",
+                    "INSERT INTO users(full_name, email, password_hash, phone, user_role) VALUES(?,?,?,?,?)",
                     new String[]{"user_id"});
             ps.setString(1, req.fullName());
             ps.setString(2, req.email());
             ps.setString(3, passwordHash);
             ps.setString(4, req.phone());
+            ps.setString(5, role);
             return ps;
         }, kh);
         return kh.getKey().longValue();

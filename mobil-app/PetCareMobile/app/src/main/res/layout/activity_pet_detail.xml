@@ -11,40 +11,38 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Toolbar -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
             android:gravity="center_vertical"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
+            android:orientation="horizontal">
 
             <ImageButton
                 android:id="@+id/backButton"
                 android:layout_width="44dp"
                 android:layout_height="44dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:src="@android:drawable/ic_menu_revert"
-                android:contentDescription="Geri" />
+                android:contentDescription="Geri"
+                android:src="@android:drawable/ic_menu_revert" />
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_marginStart="8dp"
-                android:text="Hayvan Detayı"
+                android:layout_weight="1"
+                android:text="@string/pet_detail_title"
                 android:textColor="@color/forestDeep"
                 android:textSize="22sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
-        <!-- Pet Info Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="@color/cardIvory"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -76,75 +74,100 @@
                     android:layout_marginVertical="14dp"
                     android:background="@color/forestSoft" />
 
-                <LinearLayout android:layout_width="match_parent"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <LinearLayout android:layout_width="0dp"
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content"
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Cinsiyet"
                             android:textColor="@color/textMuted"
-                            android:textSize="12sp"/>
+                            android:textSize="12sp" />
+
                         <TextView
                             android:id="@+id/petGender"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/forestDeep"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="0dp"
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content"
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Doğum Tarihi"
+                            android:text="Dogum Tarihi"
                             android:textColor="@color/textMuted"
-                            android:textSize="12sp"/>
+                            android:textSize="12sp" />
+
                         <TextView
                             android:id="@+id/petBirthDate"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/forestDeep"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
-                    <LinearLayout android:layout_width="0dp"
+
+                    <LinearLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
-                        <TextView android:layout_width="wrap_content"
+
+                        <TextView
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Kilo"
                             android:textColor="@color/textMuted"
-                            android:textSize="12sp"/>
+                            android:textSize="12sp" />
+
                         <TextView
                             android:id="@+id/petWeight"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/forestDeep"
-                            android:textStyle="bold"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
                 </LinearLayout>
 
                 <TextView
                     android:id="@+id/petNotesDetail"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:textColor="@color/textMuted" />
+
+                <Button
+                    android:id="@+id/editPetButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/forestSoft"
+                    android:text="@string/edit_pet_button"
+                    android:textAllCaps="false"
+                    android:textColor="@android:color/white" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Appointments Card -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardBackgroundColor="@color/cardIvory"
-            app:cardCornerRadius="20dp"
+            app:cardCornerRadius="16dp"
             app:cardElevation="2dp">
 
             <LinearLayout
@@ -158,21 +181,23 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
+
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="📅 Randevular"
+                        android:text="@string/appointments_section"
                         android:textColor="@color/forestDeep"
                         android:textSize="18sp"
                         android:textStyle="bold" />
+
                     <Button
                         android:id="@+id/addAppointmentButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="36dp"
+                        android:layout_height="40dp"
                         android:backgroundTint="@color/terracotta"
                         android:paddingHorizontal="14dp"
-                        android:text="+ Ekle"
+                        android:text="@string/add_appointment_button"
                         android:textAllCaps="false"
                         android:textColor="@android:color/white"
                         android:textSize="13sp" />
@@ -190,22 +215,20 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:text="Henüz randevu eklenmemiş."
+                    android:text="@string/no_appointments_text"
                     android:textColor="@color/textMuted"
                     android:visibility="gone" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Delete Pet Button -->
         <Button
             android:id="@+id/deletePetButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
             android:layout_marginTop="8dp"
             android:backgroundTint="#E53935"
-            android:text="🗑  Hayvanı Sil"
+            android:text="@string/delete_pet_button"
             android:textAllCaps="false"
             android:textColor="@android:color/white" />
-
     </LinearLayout>
 </ScrollView>

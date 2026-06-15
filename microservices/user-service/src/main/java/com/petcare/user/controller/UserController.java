@@ -18,6 +18,11 @@ public class UserController {
         return ApiResponse.success("Users fetched.", userService.findAll());
     }
 
+    @GetMapping("/vets")
+    public ApiResponse<List<UserResponse>> getVets() {
+        return ApiResponse.success("Vets fetched.", userService.findByRole("VET"));
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<UserResponse> getById(@PathVariable Long id) {
         return ApiResponse.success("User fetched.", userService.findById(id));

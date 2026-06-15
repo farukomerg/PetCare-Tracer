@@ -2,43 +2,39 @@
 <resources>
     <string name="app_name">PetCare Mobile</string>
 
-    <!-- Login -->
     <string name="login_subtitle">Evcil hayvanlarin tum kayitlarini tek merkezden yonet.</string>
     <string name="email_hint">E-posta</string>
     <string name="password_hint">Sifre</string>
     <string name="login_button">Giris Yap</string>
     <string name="register_link">Hesabin yok mu? Kayit ol</string>
 
-    <!-- Register -->
     <string name="register_title">Yeni hesap olustur</string>
     <string name="full_name_hint">Ad Soyad</string>
     <string name="phone_hint">Telefon</string>
     <string name="register_button">Kaydi Tamamla</string>
 
-    <!-- Dashboard -->
-    <string name="welcome_user">Hos geldin, %1$s 👋</string>
+    <string name="welcome_user">Hos geldin, %1$s</string>
     <string name="dashboard_title">Kontrol Merkezi</string>
     <string name="dashboard_subtitle">Pet listene, randevulara ve takiplere buradan ulasabilirsin.</string>
-    <string name="view_pets_button">🐾  Evcil Hayvanlarim</string>
+    <string name="view_pets_button">Evcil Hayvanlarim</string>
+    <string name="vet_panel_button">Veteriner Paneli</string>
     <string name="logout_button">Cikis Yap</string>
     <string name="dashboard_quick_tip">Bir hayvana tiklayarak randevu ekleyebilirsin.</string>
 
-    <!-- Pet List -->
     <string name="pet_list_title">Evcil Hayvanlarim</string>
     <string name="pet_list_subtitle">Listeyi yenilemek icin asagi cek.</string>
     <string name="no_pets_text">Henuz hic hayvan eklenmemis.\nSag alttaki + butonuna tiklayarak ekleyebilirsin.</string>
 
-    <!-- Pet Detail -->
     <string name="pet_detail_title">Hayvan Detayi</string>
     <string name="appointments_section">Randevular</string>
     <string name="no_appointments_text">Henuz randevu eklenmemis.</string>
     <string name="add_appointment_button">+ Ekle</string>
-    <string name="delete_pet_button">🗑  Hayvani Sil</string>
+    <string name="edit_pet_button">Bilgileri Duzenle</string>
+    <string name="delete_pet_button">Hayvani Sil</string>
     <string name="delete_pet_confirm_title">Hayvani Sil</string>
     <string name="delete_pet_confirm_msg">Bu hayvan ve tum verileri silinecek. Emin misiniz?</string>
     <string name="pet_deleted_msg">Hayvan silindi.</string>
 
-    <!-- Add Appointment Dialog -->
     <string name="add_appointment_title">Randevu Ekle</string>
     <string name="vet_name_hint">Veteriner Adi *</string>
     <string name="clinic_hint">Klinik / Hastane</string>
@@ -46,7 +42,6 @@
     <string name="appointment_note_hint">Not (opsiyonel)</string>
     <string name="appointment_added_msg">Randevu eklendi.</string>
 
-    <!-- Add Pet -->
     <string name="add_pet_title">Yeni Hayvan Ekle</string>
     <string name="add_pet_fab_desc">Hayvan Ekle</string>
     <string name="section_required">Zorunlu Bilgiler</string>
@@ -59,10 +54,20 @@
     <string name="weight_hint">Mevcut Kilo (kg)</string>
     <string name="notes_hint">Notlar</string>
     <string name="save_pet_button">Hayvan Kaydet</string>
-    <string name="saving_pet_button">Kaydediliyor…</string>
+    <string name="saving_pet_button">Kaydediliyor...</string>
     <string name="pet_saved_success">%1$s basariyla kaydedildi!</string>
 
-    <!-- Errors / Generic -->
+    <string name="edit_pet_title">Hayvan Bilgilerini Duzenle</string>
+    <string name="save_changes_button">Degisiklikleri Kaydet</string>
+    <string name="pet_updated_success">%1$s guncellendi.</string>
+
+    <string name="vet_panel_title">Veteriner Paneli</string>
+    <string name="vet_panel_subtitle">Size atanan randevulari takip edin ve kullanicilara hatirlatma gonderin.</string>
+    <string name="no_vet_appointments">Gosterilecek randevu bulunamadi.</string>
+    <string name="send_reminder_button">Hatirlat</string>
+    <string name="complete_button">Tamamla</string>
+    <string name="cancel_button">Iptal Et</string>
+
     <string name="connection_error">Baglanti hatasi: %1$s</string>
     <string name="error_pet_name_required">Hayvan adi zorunludur.</string>
     <string name="error_species_required">Tur bilgisi zorunludur.</string>

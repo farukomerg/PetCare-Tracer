@@ -28,9 +28,19 @@ public class AppointmentService {
         return repo.findByPetId(petId).stream().map(this::toResp).toList();
     }
 
+    public List<AppointmentResponse> findByVetId(Long vetId) {
+        return repo.findByVetId(vetId).stream().map(this::toResp).toList();
+    }
+
+    public AppointmentResponse updateStatus(Long id, String status) {
+        repo.updateStatus(id, status);
+        Appointment a = repo.findById(id).orElseThrow(() -> new NotFoundException("Appointment not found: " + id));
+        return toResp(a);
+    }
+
     public AppointmentResponse create(CreateAppointmentRequest r) {
-        if (r == null || r.petId() == null || isBlank(r.vetName()) || r.appointmentTime() == null)
-            throw new BadRequestException("petId, vetName and appointmentTime are required.");
+        if (r == null || r.petId() == null || r.vetId() == null || isBlank(r.vetName()) || r.appointmentTime() == null)
+            throw new BadRequestException("petId, vetId, vetName and appointmentTime are required.");
         return findById(repo.save(r));
     }
 
@@ -39,7 +49,7 @@ public class AppointmentService {
     }
 
     private AppointmentResponse toResp(Appointment a) {
-        return new AppointmentResponse(a.appointmentId(), a.petId(), a.vetName(),
+        return new AppointmentResponse(a.appointmentId(), a.petId(), a.vetId(), a.vetName(),
                 a.clinicName(), a.appointmentTime(), a.status(), a.note());
     }
 

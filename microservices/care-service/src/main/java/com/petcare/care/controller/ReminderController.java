@@ -15,6 +15,11 @@ public class ReminderController {
 
     public ReminderController(ReminderService svc) { this.svc = svc; }
 
+    @GetMapping
+    public ApiResponse<List<ReminderResponse>> all() {
+        return ApiResponse.success("Reminders fetched.", svc.findAll());
+    }
+
     @GetMapping("/pet/{petId}")
     public ApiResponse<List<ReminderResponse>> byPet(@PathVariable Long petId) {
         return ApiResponse.success("Reminders fetched.", svc.findByPetId(petId));

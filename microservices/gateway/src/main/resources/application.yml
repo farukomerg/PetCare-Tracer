@@ -5,6 +5,8 @@ spring:
   application:
     name: petcare-gateway
   cloud:
+    compatibility-verifier:
+      enabled: false
     gateway:
       globalcors:
         corsConfigurations:

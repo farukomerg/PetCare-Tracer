@@ -56,6 +56,50 @@ Not:
 12. Emulator tamamen acildiktan sonra Android Studio ust cubugundaki cihaz listesinden bu emulatoru sec.
 13. Sonra yesil `Run` butonuna bas.
 
+## Run Configuration: Module Not Specified Hatasi
+
+Android Studio'da yesil `Run` butonuna bastiginda `Configuration is still incorrect` ve `Module not specified` hatasi gorunurse sorun koddan degil, Android Studio calistirma ayarindan kaynaklanir.
+
+Bu projede dogru modul:
+
+- `app`
+
+Kontrol adimlari:
+
+1. Android Studio'da sadece `C:\Users\MSI\Desktop\PetCare-Tracer\mobil-app\PetCareMobile` klasorunu ac.
+2. `File > Sync Project with Gradle Files` calistir.
+3. Ust cubukta `app` configuration secili degilse acilir menuden `Edit Configurations...` sec.
+4. Soldaki hatali `app` kaydini sec.
+5. `Module` alaninda `<no module>` yaziyorsa listeden `app` veya `PetCareMobile.app` sec.
+6. Secenek cikmiyorsa hatali `app` configuration kaydini sil, `+ > Android App` sec ve module olarak `app` sec.
+7. `Apply > OK` de.
+8. Emulator tamamen acildiktan sonra tekrar yesil `Run` butonuna bas.
+
+Projeye yerel olarak `.idea/runConfigurations/app.xml` dosyasi da eklendi. Android Studio bu ayari hemen gormezse projeyi kapatip tekrar `PetCareMobile` klasorunden ac.
+
+## Pixel 6 Emulator Cok Kasarsa
+
+Pixel 6 bazi bilgisayarlarda agir calisabilir. Daha hafif test icin yeni bir cihaz olusturmak daha iyi olur.
+
+Onerilen ayar:
+
+- Device: `Pixel 2`, `Pixel 3a` veya `Resizable Phone`
+- System Image: `x86_64`
+- RAM: `1024 MB` veya `1536 MB`
+- Graphics: `Hardware - GLES 2.0`
+- Cold Boot yerine normal `Play` ile baslat
+
+Adimlar:
+
+1. `Tools > Device Manager` ac.
+2. Pixel 6 calisiyorsa kapat.
+3. `Create Device` sec.
+4. `Pixel 3a` gibi daha hafif bir cihaz sec.
+5. `x86_64` bir system image sec.
+6. `Show Advanced Settings` icinden RAM degerini dusur.
+7. Cihazi olusturup baslat.
+8. Cihaz tamamen acildiktan sonra Android Studio ust cubugundan bu cihazi sec.
+
 ## Uygulamanin Derlenme Durumu
 
 Bu projede mobil taraf derlenebiliyor ve debug APK uretiyor:

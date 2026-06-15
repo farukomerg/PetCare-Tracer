@@ -29,6 +29,10 @@ public class ReminderRepository {
                 rs.getTimestamp("created_at").toLocalDateTime());
     }
 
+    public List<Reminder> findAll() {
+        return jdbc.query("SELECT * FROM reminders ORDER BY remind_at DESC", this::mapRow);
+    }
+
     public List<Reminder> findByPetId(Long petId) {
         return jdbc.query("SELECT * FROM reminders WHERE pet_id=? ORDER BY remind_at", this::mapRow, petId);
     }
